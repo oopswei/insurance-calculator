@@ -105,11 +105,12 @@
 <main class="wrap">
   <div class="back-nav"><a href="../../index.html">← 返回保險試算中心</a></div>
   <header class="header">
+    <div class="eyebrow">INSURANCE PREMIUM CALCULATOR</div>
     <div class="title-row">
-      <h1>滿溢鍾心保險給付試算</h1>
+      <h1>滿溢鍾心保險金試算</h1>
       <a class="dm-title-link" href="https://www.cathaylife.com.tw/official/content/dam/cathaylife-official/files/products/health-illness/ZCQZCR_DM.pdf" target="_blank" rel="noopener noreferrer">商品 DM ↗</a>
     </div>
-    <p class="subtitle">滿溢鍾心重大傷病定期保險給付情境模擬</p>
+    <p class="subtitle">滿溢鍾心重大傷病給付情境模擬</p>
   </header>
 
   <section class="panel">
@@ -118,9 +119,9 @@
       <div class="field">
         <label for="ageMode">投保年齡輸入方式</label>
         <select id="ageMode"><option value="birthday">出生年月日（自動換算保險年齡）</option><option value="age">直接輸入保險年齡</option></select>
-        <input id="birthDate" type="text" inputmode="numeric" placeholder="民國年/月/日，例如 80/05/12" aria-label="出生年月日（民國）">
+        <input id="birthDate" type="text" inputmode="numeric" placeholder="民國生日6或7碼，例如 800512 或 1070630" maxlength="7" aria-label="出生年月日(民國)">
         <input id="age" type="number" min="0" max="55" step="1" value="" placeholder="請輸入保險年齡" inputmode="numeric" class="hidden">
-        <div class="hint" id="ageCalculatedHint">依今天日期及生日是否已滿半年換算保險年齡；生日請輸入民國年/月/日。</div>
+        <div class="hint" id="ageCalculatedHint">依今天日期及生日是否已滿半年換算保險年齡；請輸入民國生日6或7碼（年月日），例如 791030 或 1070630。</div>
         <div class="error" id="ageError"></div>
       </div>
       <div class="field">
@@ -317,8 +318,17 @@
 
   function parseRocDate(value) {
     if (!value) return null;
-    const match = String(value).trim().match(/^(\d{1,3})[\/.-](\d{1,2})[\/.-](\d{1,2})$/);
-    if (!match) return null;
+    const input = String(value).trim();
+    let match;
+    if (/^\d{6,7}$/.test(input)) {
+      // 民國年月日：6碼為YYMMDD，7碼為YYYMMDD，例如800512或1070630
+      const yearLength = input.length - 4;
+      match = [null, input.slice(0, yearLength), input.slice(yearLength, yearLength + 2), input.slice(yearLength + 2, yearLength + 4)];
+    } else {
+      // 同時相容舊格式 80/05/12
+      match = input.match(/^(\d{1,3})[\/.-](\d{1,2})[\/.-](\d{1,2})$/);
+      if (!match) return null;
+    }
     const year = Number(match[1]) + 1911, month = Number(match[2]), day = Number(match[3]);
     const date = new Date(year, month - 1, day);
     if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) return null;
@@ -341,7 +351,7 @@
   function effectiveEntryAge(){
     if($('ageMode').value==='age') return $('age').value.trim()===''?null:Number($('age').value);
     const value=insuranceAgeFromDates($('birthDate').value,localToday());
-    $('ageCalculatedHint').textContent=value===null?'請輸入有效的民國出生日期（例如 80/05/12）。':`依今日 ${rocToday()} 換算，保險年齡為 ${value} 歲。`;
+    $('ageCalculatedHint').textContent=value===null?'請輸入有效的民國生日6或7碼（例如 800512 或 1070630）。':`依今日 ${rocToday()} 換算，保險年齡為 ${value} 歲。`;
     return value;
   }
   function effectiveClaimAge(){

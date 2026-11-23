@@ -149,9 +149,9 @@
           <span id="ageRecommendation" class="age-recommendation" aria-live="polite">正在取得建議年齡……</span>
         </div>
         <select id="ageMode"><option value="birthday">出生年月日（自動換算保險年齡）</option><option value="age">直接輸入保險年齡</option></select>
-        <input id="birthDate" type="text" inputmode="numeric" placeholder="民國年/月/日，例如 80/05/12" aria-label="出生年月日（民國）" oninput="scheduleAgeRecommendation()">
+        <input id="birthDate" type="text" inputmode="numeric" placeholder="民國生日6或7碼，例如 800512 或 1070630" maxlength="7" aria-label="出生年月日（民國）" oninput="scheduleAgeRecommendation()">
         <input id="age" type="number" min="0" max="100" step="1" placeholder="請先輸入保險年齡" class="hidden" oninput="scheduleAgeRecommendation()">
-        <div class="hint" id="ageCalculatedHint">依今天日期及生日是否已滿半年換算保險年齡；生日請輸入民國年/月/日。</div>
+        <div class="hint" id="ageCalculatedHint">依今天日期及生日是否已滿半年換算保險年齡；請輸入民國生日6或7碼（年月日），例如 800512 或 1070630。</div>
       </div>
       <div>
         <label for="gender">性別</label>
@@ -380,8 +380,17 @@
 
   function parseRocDate(value) {
     if (!value) return null;
-    const match = String(value).trim().match(/^(\d{1,3})[\/.-](\d{1,2})[\/.-](\d{1,2})$/);
-    if (!match) return null;
+    const input = String(value).trim();
+    let match;
+    if (/^\d{6,7}$/.test(input)) {
+      // 民國年月日：6碼為YYMMDD，7碼為YYYMMDD，例如800512或1070630
+      const yearLength = input.length - 4;
+      match = [null, input.slice(0, yearLength), input.slice(yearLength, yearLength + 2), input.slice(yearLength + 2, yearLength + 4)];
+    } else {
+      // 同時相容舊格式 80/05/12
+      match = input.match(/^(\d{1,3})[\/.-](\d{1,2})[\/.-](\d{1,2})$/);
+      if (!match) return null;
+    }
     const year = Number(match[1]) + 1911, month = Number(match[2]), day = Number(match[3]);
     const date = new Date(year, month - 1, day);
     if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) return null;
@@ -404,7 +413,7 @@
   function effectiveAge(){
     if(el('ageMode').value==='age')return el('age').value.trim()===''?null:Number(el('age').value);
     const age=insuranceAgeFromDates(el('birthDate').value,localToday());
-    el('ageCalculatedHint').textContent=age===null?'請輸入有效的民國出生日期（例如 80/05/12）。':`依今日 ${rocToday()} 換算，保險年齡為 ${age} 歲。`;
+    el('ageCalculatedHint').textContent=age===null?'請輸入有效的民國生日6或7碼（例如 800512 或 1070630）。':`依今日 ${rocToday()} 換算，保險年齡為 ${age} 歲。`;
     return age;
   }
   function getCurrentInputForAgeHint() {
@@ -640,7 +649,7 @@
 
   function showError(message){el('error').textContent=message;el('error').classList.remove('hidden');}
   function resetForm(){
-    el('age').value='';el('birthDate').value='';el('ageMode').value='birthday';el('age').classList.add('hidden');el('birthDate').classList.remove('hidden');el('ageCalculatedHint').textContent='依今天日期及生日是否已滿半年換算保險年齡；生日請輸入民國年/月/日。';el('gender').value='男性';el('principalCode').value='FPA';updatePrincipalNote();
+    el('age').value='';el('birthDate').value='';el('ageMode').value='birthday';el('age').classList.add('hidden');el('birthDate').classList.remove('hidden');el('ageCalculatedHint').textContent='依今天日期及生日是否已滿半年換算保險年齡；請輸入民國生日6或7碼（年月日），例如 800512 或 1070630。';el('gender').value='男性';el('principalCode').value='FPA';updatePrincipalNote();
     el('principalAmount').value='10';el('term').value='10';el('riderCode').value='';el('riderAmount').value='M10';
     el('error').classList.add('hidden');el('result').classList.add('hidden');el('age').focus();refreshAgeRecommendation();
   }
