@@ -474,7 +474,7 @@
 
     const events = [
       {age:age,kind:'start',title:'開始投保',amount:`年繳 ${money(annual)} 元`,desc:`原定繳費 ${currentTerm} 年`},
-      {age:maturityAge,kind:maturityAlreadyPaid?'maturity':'cancel',title:'滿期金紀錄期間屆滿',amount:maturityAlreadyPaid?`${money(halfScheduledTotal)} 元（已領）`:'不給付',desc:maturityAlreadyPaid?'疾病事故發生前已領取':'疾病事故先發生，契約已終止'},
+      {age:maturityAge,kind:maturityAlreadyPaid?'maturity':'cancel',title:'滿期金紀錄期間屆滿',amount:maturityAlreadyPaid?`${money(halfScheduledTotal)} 元`:'不給付',desc:maturityAlreadyPaid?'疾病事故發生前已領取':'疾病事故先發生，契約已終止'},
       {age:claimAge,kind:'claim',title:`首次確診${claimType}`,amount:`${money(illnessBenefit)} 元`,desc:`第${policyYear}保單年度；契約終止`},
       {age:90,kind:'cancel',title:'祝壽保險金',amount:'本情境不給付',desc:'疾病事故先發生，契約已終止'}
     ].sort((a,b)=>a.age-b.age);
