@@ -149,9 +149,9 @@
           <span id="ageRecommendation" class="age-recommendation" aria-live="polite">正在取得建議年齡……</span>
         </div>
         <select id="ageMode"><option value="birthday">出生年月日（自動換算保險年齡）</option><option value="age">直接輸入保險年齡</option></select>
-        <input id="birthDate" type="date" aria-label="出生年月日" onchange="scheduleAgeRecommendation()">
+        <input id="birthDate" type="text" inputmode="numeric" placeholder="民國年/月/日，例如 80/05/12" aria-label="出生年月日（民國）" oninput="scheduleAgeRecommendation()">
         <input id="age" type="number" min="0" max="100" step="1" placeholder="請先輸入保險年齡" class="hidden" oninput="scheduleAgeRecommendation()">
-        <div class="hint" id="ageCalculatedHint">依今天日期及生日是否已滿半年換算保險年齡。</div>
+        <div class="hint" id="ageCalculatedHint">依今天日期及生日是否已滿半年換算保險年齡；生日請輸入民國年/月/日。</div>
       </div>
       <div>
         <label for="gender">性別</label>
@@ -378,19 +378,33 @@
     return ranges.join('、');
   }
 
+  function parseRocDate(value) {
+    if (!value) return null;
+    const match = String(value).trim().match(/^(\d{1,3})[\/.-](\d{1,2})[\/.-](\d{1,2})$/);
+    if (!match) return null;
+    const year = Number(match[1]) + 1911, month = Number(match[2]), day = Number(match[3]);
+    const date = new Date(year, month - 1, day);
+    if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) return null;
+    return date;
+  }
   function insuranceAgeFromDates(birthValue, asOfValue) {
-    if(!birthValue || !asOfValue) return null;
-    const [by,bm,bd]=birthValue.split('-').map(Number),[ay,am,ad]=asOfValue.split('-').map(Number);
-    const birth=new Date(by,bm-1,bd),asOf=new Date(ay,am-1,ad); if(asOf<birth)return null;
-    const thisBirthday=new Date(ay,bm-1,bd),lastBirthday=thisBirthday<=asOf?thisBirthday:new Date(ay-1,bm-1,bd);
-    let age=lastBirthday.getFullYear()-by;const mark=new Date(lastBirthday);mark.setMonth(mark.getMonth()+6);
-    if(asOf>=mark)age++;return age;
+    const birth = parseRocDate(birthValue);
+    if (!birth || !asOfValue) return null;
+    const [ay,am,ad]=asOfValue.split('-').map(Number), asOf=new Date(ay,am-1,ad);
+    if (asOf < birth) return null;
+    const by=birth.getFullYear(), bm=birth.getMonth(), bd=birth.getDate();
+    const thisBirthday=new Date(ay,bm,bd), lastBirthday=thisBirthday<=asOf?thisBirthday:new Date(ay-1,bm,bd);
+    let age=lastBirthday.getFullYear()-by;
+    const sixMonthMark=new Date(lastBirthday); sixMonthMark.setMonth(sixMonthMark.getMonth()+6);
+    if(asOf>=sixMonthMark) age++;
+    return age;
   }
   function localToday(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+  function rocToday(){const d=new Date();return `民國${d.getFullYear()-1911}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;}
   function effectiveAge(){
     if(el('ageMode').value==='age')return el('age').value.trim()===''?null:Number(el('age').value);
     const age=insuranceAgeFromDates(el('birthDate').value,localToday());
-    el('ageCalculatedHint').textContent=age===null?'請輸入有效出生日期。':`依今日 ${localToday()} 換算，保險年齡為 ${age} 歲。`;
+    el('ageCalculatedHint').textContent=age===null?'請輸入有效的民國出生日期（例如 80/05/12）。':`依今日 ${rocToday()} 換算，保險年齡為 ${age} 歲。`;
     return age;
   }
   function getCurrentInputForAgeHint() {
@@ -626,7 +640,7 @@
 
   function showError(message){el('error').textContent=message;el('error').classList.remove('hidden');}
   function resetForm(){
-    el('age').value='';el('birthDate').value='';el('ageMode').value='birthday';el('age').classList.add('hidden');el('birthDate').classList.remove('hidden');el('ageCalculatedHint').textContent='依今天日期及生日是否已滿半年換算保險年齡。';el('gender').value='男性';el('principalCode').value='FPA';updatePrincipalNote();
+    el('age').value='';el('birthDate').value='';el('ageMode').value='birthday';el('age').classList.add('hidden');el('birthDate').classList.remove('hidden');el('ageCalculatedHint').textContent='依今天日期及生日是否已滿半年換算保險年齡；生日請輸入民國年/月/日。';el('gender').value='男性';el('principalCode').value='FPA';updatePrincipalNote();
     el('principalAmount').value='10';el('term').value='10';el('riderCode').value='';el('riderAmount').value='M10';
     el('error').classList.add('hidden');el('result').classList.add('hidden');el('age').focus();refreshAgeRecommendation();
   }
