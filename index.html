@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="保險商品保費與保險金情境試算工具入口">
+  <title>保險試算中心</title>
+  <style>
+    :root{--navy:#163b63;--blue:#27649a;--ink:#203044;--muted:#6b7b8d;--line:#dce5ee}
+    *{box-sizing:border-box}
+    body{margin:0;background:#f3f6fa;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif}
+    .hero{padding:54px 22px 46px;color:#fff;background:linear-gradient(125deg,#163b63,#3476a9)}
+    .hero-inner,.main{width:min(100% - 36px,1000px);margin:auto}
+    .eyebrow{font-size:12px;letter-spacing:2px;opacity:.8}
+    h1{margin:10px 0 8px;font-size:34px;line-height:1.25}
+    .hero p{margin:0;color:#e5eef8;font-size:15px;line-height:1.7}
+    .main{padding:30px 0 55px}
+    .section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:17px}
+    h2{margin:0;color:var(--navy);font-size:20px}
+    .count{color:var(--muted);font-size:12px}
+    .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .card{display:flex;flex-direction:column;min-height:220px;padding:22px;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 8px 24px rgba(20,48,78,.05)}
+    .tag{align-self:flex-start;padding:5px 9px;border-radius:20px;background:#eaf2fa;color:#27649a;font-size:11px;font-weight:700}
+    .card h3{margin:15px 0 7px;font-size:19px;color:var(--navy)}
+    .card p{margin:0;color:var(--muted);font-size:13px;line-height:1.7}
+    .card a{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;margin-top:auto;padding-top:20px;color:#27649a;text-decoration:none;font-size:13px;font-weight:800}
+    .card a:hover{text-decoration:underline}
+    .placeholder{border-style:dashed;background:rgba(255,255,255,.55);box-shadow:none}
+    .placeholder h3{color:#64758a}
+    .footer{margin-top:26px;padding-top:17px;border-top:1px solid var(--line);color:var(--muted);font-size:11px;line-height:1.7}
+    @media(max-width:620px){.hero{padding:40px 0 34px}h1{font-size:28px}.cards{grid-template-columns:1fr}.card{min-height:190px}.main{padding-top:24px}}
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">INSURANCE TOOLS</div>
+      <h1>保險試算中心</h1>
+      <p>集中管理保費、保障與情境試算工具。選擇商品即可開始試算。</p>
+    </div>
+  </header>
+  <main class="main">
+    <div class="section-head">
+      <h2>商品試算工具</h2>
+      <span class="count">目前上架 1 項工具</span>
+    </div>
+    <section class="cards">
+      <article class="card">
+        <span class="tag">重大傷病／特定疾病</span>
+        <h3>滿溢鍾心保險金預估</h3>
+        <p>提供投保年齡、性別、保額、繳費年期與疾病情境，估算年繳保費、疾病給付、保障時間軸及本情境總領金額。</p>
+        <a href="products/man-yu-zhong-xin/">開啟試算器 <span aria-hidden="true">→</span></a>
+      </article>
+      <article class="card placeholder">
+        <span class="tag">規劃中</span>
+        <h3>其他保險商品</h3>
+        <p>未來新增商品時，建立獨立商品頁並在此新增入口卡片；各商品的費率與計算邏輯互不干擾。</p>
+      </article>
+    </section>
+    <div class="footer">
+      本網站提供情境估算與教育說明，不構成承保、理賠或正式保險建議。實際費率、承保條件及保險金給付，均以正式商品文件、保單條款及保險公司核定為準。
+    </div>
+  </main>
+</body>
+</html>

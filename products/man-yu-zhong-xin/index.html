@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>滿溢鍾心保險金預估｜保險試算中心</title>
+  <style>
+    :root {
+      --navy:#163b63; --blue:#27649a; --line:#dce5ee; --text:#203044;
+      --muted:#6b7b8d; --green:#18794e; --red:#b42318; --orange:#a86608;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;padding:26px 14px 40px;background:#f4f7fb;color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif}
+    .wrap{max-width:820px;margin:0 auto}
+    .back-nav{margin:0 0 12px;font-size:13px}.back-nav a{color:#27649a;text-decoration:none;font-weight:700}.back-nav a:hover{text-decoration:underline}
+    .header{padding:25px 26px;color:#fff;border-radius:18px 18px 0 0;
+      background:linear-gradient(125deg,#163b63,#3476a9)}
+    .eyebrow{font-size:12px;letter-spacing:1.5px;opacity:.82}
+    h1{margin:8px 0 5px;font-size:25px;line-height:1.35}
+
+    .title-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .title-row h1{margin:8px 0 5px}
+    .dm-title-link{display:inline-flex;align-items:center;gap:5px;margin:7px 0 5px;
+      padding:6px 10px;border:1px solid rgba(255,255,255,.55);border-radius:8px;
+      color:#fff;text-decoration:none;font-size:12px;font-weight:700;white-space:nowrap}
+    .dm-title-link:hover{background:rgba(255,255,255,.14)}
+    .subtitle{margin:0;font-size:13px;opacity:.88}
+    .panel{padding:24px;background:#fff;border:1px solid var(--line);border-top:0;
+      border-radius:0 0 18px 18px;box-shadow:0 8px 28px rgba(20,48,78,.08)}
+    .section-title{margin:0 0 17px;color:var(--navy);font-size:16px;font-weight:750}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 16px}
+
+    .scenario-row{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 16px}
+    .field{min-width:0}
+    label{display:block;margin-bottom:8px;font-size:13px;font-weight:700}
+    input,select{width:100%;min-height:46px;padding:10px 12px;color:var(--text);background:#fff;
+      border:1px solid #cbd6e2;border-radius:9px;font:inherit;font-size:15px;outline:none}
+    input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(39,100,154,.12)}
+    .hint{margin-top:6px;color:var(--muted);font-size:12px;line-height:1.5}
+    .error{min-height:17px;margin-top:5px;color:var(--red);font-size:12px}
+    .segmented{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+    .segmented button{min-height:44px;border:1px solid #cbd6e2;border-radius:9px;color:var(--text);
+      background:#fff;font:inherit;cursor:pointer}
+    .segmented button.active{color:#fff;background:var(--navy);border-color:var(--navy);font-weight:700}
+    .result-area{margin-top:26px}
+    .premium-card{padding:20px;color:#fff;border-radius:13px;background:linear-gradient(125deg,#163b63,#27649a)}
+    .premium-label{font-size:13px;opacity:.85}
+    .premium-value{margin:5px 0 15px;font-size:32px;font-weight:800}
+    .premium-meta{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:12px;opacity:.9}
+    .total-row{display:flex;justify-content:space-between;gap:12px;align-items:center;
+      padding-top:15px;margin-top:15px;border-top:1px solid rgba(255,255,255,.25)}
+    .total-row strong{font-size:20px}
+    .status{margin-top:13px;padding:13px 15px;border-radius:10px;font-size:13px;line-height:1.7}
+    .status.waiver{color:#7a3e00;background:#fff4df;border:1px solid #f0d49e}
+    .status.normal{color:#245a43;background:#edf8f1;border:1px solid #cce8d6}
+    .benefit-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+    .benefit{padding:16px;border:1px solid var(--line);border-radius:11px;background:#fff}
+    .benefit-name{color:var(--muted);font-size:12px;line-height:1.5}
+    .benefit-value{margin-top:7px;color:var(--green);font-size:21px;font-weight:800}
+    .benefit-value.zero{color:#8995a3}
+    .benefit-note{margin-top:6px;color:var(--muted);font-size:11px;line-height:1.5}
+    .total-payout{margin-top:14px;padding:19px;border-radius:13px;background:#edf7f1;border:1px solid #cce8d6}
+    .total-payout-label{color:#245a43;font-size:13px;font-weight:700}
+    .total-payout-value{margin-top:5px;color:#18794e;font-size:30px;font-weight:850}
+    .total-payout-note{margin-top:5px;color:#587568;font-size:11px;line-height:1.6}
+    .timeline-card{margin-top:14px;padding:18px;border:1px solid var(--line);border-radius:13px;background:#fff}
+    .timeline-head{margin-bottom:17px}
+    .timeline-head h3{margin:0;color:var(--navy);font-size:15px}
+    .timeline-head p{margin:5px 0 0;color:var(--muted);font-size:11px;line-height:1.5}
+    .timeline{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding-top:18px}
+    .timeline:before{content:"";position:absolute;top:25px;left:9%;right:9%;height:4px;border-radius:5px;background:#dce8e1}
+    .milestone{position:relative;z-index:1;min-width:0}
+    .dot{width:17px;height:17px;margin:0 auto 10px;border:4px solid #fff;border-radius:50%;
+      background:#27845b;box-shadow:0 0 0 2px #27845b}
+    .milestone.claim .dot{background:#d28a19;box-shadow:0 0 0 2px #d28a19}
+    .milestone.cancel .dot{background:#8995a3;box-shadow:0 0 0 2px #8995a3}
+    .age-tag{display:block;text-align:center;color:var(--navy);font-weight:800;font-size:15px}
+    .event-name{text-align:center;margin-top:4px;font-size:12px;font-weight:700;line-height:1.45}
+    .event-money{text-align:center;margin-top:7px;color:var(--green);font-size:16px;font-weight:800;line-height:1.4}
+    .milestone.claim .event-money{color:var(--orange)}
+    .milestone.cancel .event-money{color:#8995a3}
+    .event-desc{text-align:center;margin-top:4px;color:var(--muted);font-size:10px;line-height:1.5}
+    .timeline-detail{margin-top:18px;padding:13px 14px;background:#f6f9fc;border-radius:9px;
+      font-size:12px;line-height:1.7}
+    .timeline-detail strong{color:var(--navy)}
+    .actions{display:flex;justify-content:flex-end;margin-top:17px}
+    .reset{padding:10px 17px;color:var(--navy);background:#fff;border:1px solid #cbd6e2;
+      border-radius:9px;font:inherit;cursor:pointer}
+    .notice{margin-top:18px;padding:13px 15px;color:#667487;background:#f6f8fa;
+      border-radius:9px;font-size:11px;line-height:1.75}
+    .hidden{display:none}
+    @media(max-width:560px){
+      body{padding:12px 9px 25px}.header{padding:21px 18px}h1{font-size:21px}
+      .panel{padding:18px 15px}.form-grid{grid-template-columns:1fr;gap:13px}.scenario-row{grid-template-columns:1fr;gap:13px}
+      .benefit-grid{gap:8px}.benefit{padding:12px 10px}.benefit-value{font-size:18px}
+      .premium-value{font-size:29px}.timeline{gap:4px}
+      .age-tag{font-size:12px}.event-name{font-size:10px}
+      .event-money{font-size:12px}.event-desc{font-size:9px}
+      .timeline-card{padding:14px 10px}
+    }
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <div class="back-nav"><a href="../../index.html">← 返回保險試算中心</a></div>
+  <header class="header">
+    <div class="eyebrow">INSURANCE PREMIUM CALCULATOR</div>
+    <div class="title-row">
+      <h1>滿溢鍾心保費試算器</h1>
+      <a class="dm-title-link" href="https://www.cathaylife.com.tw/official/content/dam/cathaylife-official/files/products/health-illness/ZCQZCR_DM.pdf" target="_blank" rel="noopener noreferrer">商品 DM ↗</a>
+    </div>
+    <p class="subtitle">國泰人壽滿溢鍾心重大傷病定期保險（外溢型）</p>
+  </header>
+
+  <section class="panel">
+    <h2 class="section-title">一、基本投保資料</h2>
+    <div class="form-grid">
+      <div class="field">
+        <label for="age">投保年齡（歲）</label>
+        <input id="age" type="number" min="0" max="55" step="1" value="" placeholder="請輸入投保年齡" inputmode="numeric">
+        <div class="error" id="ageError"></div>
+      </div>
+      <div class="field">
+        <label for="amount">投保保額（萬元）</label>
+        <input id="amount" type="number" min="30" max="500" step="0.1" value="" placeholder="請輸入 30～500 萬" inputmode="decimal">
+        <div class="hint">以萬元為單位，例如輸入 200 代表 200 萬元。</div>
+        <div class="error" id="amountError"></div>
+      </div>
+      <div class="field">
+        <label for="gender">性別</label>
+        <select id="gender">
+          <option value="male">男性</option>
+          <option value="female">女性</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>繳費年期</label>
+        <div class="segmented">
+          <button type="button" id="term15" class="active">15 年期</button>
+          <button type="button" id="term20">20 年期</button>
+        </div>
+        <div class="hint" id="ageHint">15 年期可投保年齡：0～55 歲</div>
+      </div>
+      <div class="scenario-row">
+      <div class="field">
+        <label for="claimAge">疾病發生年齡（情境假設）</label>
+        <input id="claimAge" type="number" min="0" max="90" step="1" value="" placeholder="請輸入假設發生年齡" inputmode="numeric">
+        <div class="hint">設定疾病發生年齡，系統判斷是否在繳費期間內。</div>
+        <div class="error" id="claimAgeError"></div>
+      </div>
+      <div class="field">
+        <label for="claimType">疾病情境</label>
+        <select id="claimType">
+          <option value="重大傷病">重大傷病</option>
+          <option value="特定疾病">特定疾病</option>
+        </select>
+        <div class="hint">依診斷時的保單年度計算。</div>
+      </div>
+      <div class="field" id="criticalSubtypeField">
+        <label for="criticalSubtype">重大傷病類別</label>
+        <select id="criticalSubtype">
+          <option value="一般重大傷病">一般重大傷病</option>
+          <option value="慢性精神病">慢性精神病</option>
+        </select>
+        <div class="hint">僅重大傷病情境適用；慢性精神病第2保單年度起以保額20%比較。</div>
+      </div>
+      </div>
+    </div>
+
+    <div class="result-area hidden" id="resultArea">
+      <h2 class="section-title">二、保費試算</h2>
+      <div class="premium-card">
+        <div class="premium-label">原定年繳保費</div>
+        <div class="premium-value" id="annualPremium">—</div>
+        <div class="premium-meta">
+          <span>投保保額：<b id="displayAmount">—</b></span>
+        </div>
+        <div class="total-row">
+          <span id="totalLabel">原定總繳保費</span>
+          <strong id="totalPremium">—</strong>
+        </div>
+        <div class="premium-meta" style="margin-top:7px"><span id="totalFormula">—</span></div>
+      </div>
+      <div id="waiverStatus" class="status hidden"></div>
+
+      <h2 class="section-title" style="margin-top:25px">三、保障給付時間軸</h2>
+      <div class="timeline-card">
+        <div class="timeline-head">
+          <h3>疾病發生後的保障變化</h3>
+          <p>依疾病發生年齡判斷保單年度，並顯示事故發生後的契約終止及後續給付狀態。</p>
+        </div>
+        <div class="timeline" id="timeline"></div>
+        <div class="timeline-detail" id="timelineDetail">—</div>
+        <div class="timeline-detail" style="margin-top:9px">
+          <strong>90 歲祝壽情境：</strong>
+          <span id="birthdayTimeline">—</span>
+        </div>
+
+      <div class="total-payout">
+        <div class="total-payout-label">本情境預估總領金額</div>
+        <div class="total-payout-value" id="totalPayout">—</div>
+        <div class="total-payout-note" id="totalPayoutNote">依本次情境中列示的給付項目加總</div>
+      </div>
+      </div>
+
+      <h2 class="section-title" style="margin-top:23px">四、保險金給付試算</h2>
+      <div class="benefit-grid">
+        <div class="benefit">
+          <div class="benefit-name">重大傷病保險金</div>
+          <div class="benefit-value" id="criticalBenefit">—</div>
+          <div class="benefit-note" id="criticalNote">Max（保額，原定總保費 × 1.05）</div>
+        </div>
+        <div class="benefit">
+          <div class="benefit-name">特定疾病保險金</div>
+          <div class="benefit-value" id="specificBenefit">—</div>
+          <div class="benefit-note" id="specificNote">Max（保額，原定總保費 × 1.05）</div>
+        </div>
+        <div class="benefit">
+          <div class="benefit-name" id="maturityLabel">滿期保險金</div>
+          <div class="benefit-value" id="maturityBenefit">—</div>
+          <div class="benefit-note" id="maturityNote">原定總繳保費 × 50%</div>
+        </div>
+        <div class="benefit">
+          <div class="benefit-name">祝壽保險金（年滿 90 歲）</div>
+          <div class="benefit-value" id="birthdayBenefit">—</div>
+          <div class="benefit-note" id="birthdayNote">原定總繳保費 × 50%</div>
+        </div>
+        <div class="benefit">
+          <div class="benefit-name">身故保險金（保險年齡滿16歲起）</div>
+          <div class="benefit-value" id="deathBenefit">—</div>
+          <div class="benefit-note" id="deathNote">依身故年度計算：保額與應繳保費總額×1.05取大</div>
+        </div>
+        <div class="benefit">
+          <div class="benefit-name">完全失能保險金（保險年齡滿16歲起）</div>
+          <div class="benefit-value" id="disabilityBenefit">—</div>
+          <div class="benefit-note" id="disabilityNote">依完全失能診斷年度計算：保額與應繳保費總額×1.05取大</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions"><button type="button" class="reset" id="resetButton">清除資料</button></div>
+    <div class="notice">
+      計算依據：依提供之年繳費率表及投保條件估算年繳保費，四捨五入至元；原定總繳保費＝年繳保費 × 原定繳費年期。<br>
+      疾病給付依保單第12條（重大傷病）及第13條（特定疾病）估算：「年繳應繳保險費總額」按契約生效日至初次診斷確定日或原定繳費期間屆滿日二者較早者計算；第1保單年度為該總額 × 1.05，第2保單年度起依條款與保額比較。慢性精神病第2保單年度起以保額20%與該總額 × 1.05取大。<br>
+      依第11條，重大傷病或特定疾病診斷確定日契約終止；不是豁免剩餘保費後繼續有效。尚未發生的滿期金及祝壽金不列入本次疾病事故後的給付。若滿期金已在疾病事故前領取，才列入累計總領金額。<br>
+      本工具以整歲年齡推估保單年度，未輸入實際生效日、週年日及診斷日期，等待期間、個別疾病認定、證明文件及實際保險金仍以正式保單條款與保險公司核定為準。
+    </div>
+  </section>
+</main>
+
+<script>
+  // 費率欄位順序：男性15年、男性20年、女性15年、女性20年。
+  const RATE_TABLE = [
+  [479, 356, 461, 344],
+  [482, 362, 464, 347],
+  [485, 365, 469, 351],
+  [488, 368, 474, 355],
+  [494, 374, 480, 359],
+  [500, 377, 486, 363],
+  [507, 382, 492, 368],
+  [514, 390, 498, 376],
+  [521, 395, 504, 381],
+  [528, 401, 510, 387],
+  [535, 409, 516, 394],
+  [542, 415, 522, 400],
+  [549, 423, 528, 405],
+  [556, 429, 534, 411],
+  [563, 434, 540, 418],
+  [570, 441, 546, 423],
+  [577, 447, 552, 428],
+  [584, 453, 558, 432],
+  [591, 457, 564, 437],
+  [598, 461, 570, 442],
+  [605, 465, 576, 447],
+  [612, 470, 582, 452],
+  [619, 474, 588, 457],
+  [626, 476, 594, 462],
+  [633, 478, 600, 468],
+  [635, 480, 606, 473],
+  [653, 490, 612, 476],
+  [675, 513, 618, 492],
+  [697, 545, 624, 526],
+  [722, 578, 635, 554],
+  [745, 610, 662, 583],
+  [770, 642, 691, 610],
+  [795, 654, 720, 639],
+  [820, 666, 748, 652],
+  [849, 678, 778, 667],
+  [877, 690, 806, 675],
+  [908, 704, 836, 687],
+  [945, 718, 864, 697],
+  [985, 737, 893, 707],
+  [1029, 754, 923, 720],
+  [1071, 776, 951, 732],
+  [1114, 795, 980, 745],
+  [1165, 816, 1010, 762],
+  [1221, 838, 1040, 774],
+  [1284, 862, 1069, 789],
+  [1346, 878, 1105, 809],
+  [1407, 895, 1159, 828],
+  [1469, 908, 1210, 847],
+  [1533, 923, 1266, 864],
+  [1597, 935, 1315, 887],
+  [1672, 960, 1353, 905],
+  [1739, null, 1389, null],
+  [1800, null, 1422, null],
+  [1861, null, 1462, null],
+  [1920, null, 1522, null],
+  [1990, null, 1595, null]
+];
+  let currentTerm = 15;
+  const $ = id => document.getElementById(id);
+  const money = n => Math.round(n).toLocaleString('en-US');
+
+  function setTerm(term) {
+    currentTerm = Number(term);
+    $('term15').classList.toggle('active', currentTerm === 15);
+    $('term20').classList.toggle('active', currentTerm === 20);
+    const maxAge = currentTerm === 15 ? 55 : 50;
+    $('age').max = maxAge;
+    $('ageHint').textContent = `可投保年齡：0～${maxAge} 歲`;
+    if ($('age').value !== '' && Number($('age').value) > maxAge) {
+      $('age').value = maxAge;
+    }
+    calculate();
+  }
+
+  function setBenefitValue(id, value, isZero) {
+    $(id).textContent = value;
+    $(id).classList.toggle('zero', Boolean(isZero));
+  }
+
+  function calculate() {
+    const gender = $('gender').value;
+    const ageText = $('age').value.trim();
+    const amountText = $('amount').value.trim();
+    const claimAgeText = $('claimAge').value.trim();
+    const age = Number(ageText), amountWan = Number(amountText), amount = amountWan * 10000;
+    const claimAge = Number(claimAgeText), maxAge = currentTerm === 15 ? 55 : 50;
+    const claimType = $('claimType').value;
+    const subtype = $('criticalSubtype').value;
+    $('criticalSubtypeField').style.display = claimType === '重大傷病' ? '' : 'none';
+    ['ageError','amountError','claimAgeError'].forEach(id => $(id).textContent = '');
+    let valid = true;
+    if (ageText === '' || !Number.isInteger(age) || age < 0 || age > maxAge) {
+      $('ageError').textContent = `請輸入 0～${maxAge} 歲的整數年齡。`; valid = false;
+    }
+    if (amountText === '' || !Number.isFinite(amountWan) || amountWan < 30 || amountWan > 500) {
+      $('amountError').textContent = '保額須介於 30～500 萬元。'; valid = false;
+    }
+    if (claimAgeText === '' || !Number.isInteger(claimAge) || claimAge < age || claimAge > 89) {
+      $('claimAgeError').textContent = '請輸入投保年齡至89歲之間的整數事故年齡。'; valid = false;
+    }
+    if (!valid) { $('resultArea').classList.add('hidden'); return; }
+    const rateColumn = (gender === 'male' ? 0 : 2) + (currentTerm === 15 ? 0 : 1);
+    const rate = RATE_TABLE[age][rateColumn];
+    if (rate == null) { $('ageError').textContent = '此年齡與繳費年期沒有對應費率。'; $('resultArea').classList.add('hidden'); return; }
+
+    const annual = Math.round(rate * amountWan);
+    const scheduledTotal = annual * currentTerm;
+    // 以整數保險年齡推估事故發生的保單年度；第1年應繳保費總額為1年保費，第2年為2年，以此類推，最多計至原定繳費期滿。
+    const policyYear = Math.max(1, Math.min(currentTerm, claimAge - age + 1));
+    const premiumBaseAtClaim = annual * policyYear;
+    const yearOne = policyYear === 1;
+    let illnessBenefit;
+    let formulaText;
+    if (yearOne) {
+      illnessBenefit = Math.round(premiumBaseAtClaim * 1.05);
+      formulaText = `第1保單年度：${money(premiumBaseAtClaim)} × 1.05`;
+    } else {
+      const comparisonAmount = claimType === '重大傷病' && subtype === '慢性精神病' ? amount * 0.2 : amount;
+      illnessBenefit = Math.round(Math.max(comparisonAmount, premiumBaseAtClaim * 1.05));
+      formulaText = `第${policyYear}保單年度：Max（${money(comparisonAmount)}，${money(premiumBaseAtClaim)} × 1.05）`;
+    }
+    const halfScheduledTotal = Math.round(scheduledTotal * 0.5);
+    const maturityAge = age + currentTerm + 10;
+    // 滿期金在繳費期滿後10個保單年度屆滿；疾病事故若發生在滿期金已領取之後，先前已領滿期金可列入累計。
+    const maturityAlreadyPaid = claimAge > maturityAge;
+    const maturityPayable = maturityAlreadyPaid ? halfScheduledTotal : 0;
+    const birthdayPayable = 0; // 本情境假設先發生疾病事故，契約依第11條終止，故不會再到90歲領祝壽金。
+    const totalPayout = illnessBenefit + maturityPayable;
+    const remainingPremiumYears = Math.max(0, currentTerm - policyYear);
+    const estimatedPremiumPaid = annual * policyYear;
+
+    $('resultArea').classList.remove('hidden');
+    $('annualPremium').textContent = money(annual) + ' 元';
+    $('displayAmount').textContent = `${amountWan.toLocaleString('en-US')} 萬元`;
+    $('totalLabel').textContent = '原定總繳保費（未計事故提前終止）';
+    $('totalPremium').textContent = money(scheduledTotal) + ' 元';
+    $('totalFormula').textContent = `${money(annual)} 元 × ${currentTerm} 年；疾病事故給付公式按事故年度截算保費總額`;
+
+    const criticalGeneral = yearOne ? illnessBenefit : Math.round(Math.max(amount, premiumBaseAtClaim * 1.05));
+    const criticalPsych = yearOne ? illnessBenefit : Math.round(Math.max(amount * 0.2, premiumBaseAtClaim * 1.05));
+    const specific = yearOne ? illnessBenefit : Math.round(Math.max(amount, premiumBaseAtClaim * 1.05));
+    setBenefitValue('criticalBenefit', money(claimType === '重大傷病' ? (subtype === '慢性精神病' ? criticalPsych : criticalGeneral) : criticalGeneral) + ' 元', false);
+    setBenefitValue('specificBenefit', money(specific) + ' 元', false);
+    $('criticalNote').textContent = claimType === '重大傷病' ? `本次情境：${formulaText}` : `一般重大傷病單獨發生時：${yearOne ? '第1年總應繳保費×1.05' : `Max（${money(amount)}，${money(premiumBaseAtClaim)}×1.05）`}`;
+    $('specificNote').textContent = claimType === '特定疾病' ? `本次情境：${formulaText}` : `特定疾病單獨發生時：${yearOne ? '第1年總應繳保費×1.05' : `Max（${money(amount)}，${money(premiumBaseAtClaim)}×1.05）`}`;
+
+    $('maturityLabel').textContent = `滿期保險金（約 ${maturityAge} 歲）`;
+    setBenefitValue('maturityBenefit', money(halfScheduledTotal) + ' 元', false);
+    $('maturityNote').textContent = maturityAlreadyPaid ? '此事故情境發生前已領取；列入累計總領金額' : `須於約${maturityAge}歲滿期金紀錄期間屆滿時仍生存且契約有效；本次疾病事故若先發生則不給付`;
+    setBenefitValue('birthdayBenefit', money(halfScheduledTotal) + ' 元', false);
+    $('birthdayNote').textContent = '無疾病事故且契約持續有效至90歲週年日仍生存，才可領取；本次疾病事故情境不列入累計';
+    const adultEstimate = Math.round(Math.max(amount, premiumBaseAtClaim * 1.05));
+    if (claimAge < 16) {
+      setBenefitValue('deathBenefit', '依條款另計', true);
+      $('deathNote').textContent = '未滿16歲有特殊規則；未滿15足歲身故退還所繳保費加計2.25%年複利，滿15足歲則按當年度保險金額給付。';
+      setBenefitValue('disabilityBenefit', '依條款另計', true);
+      $('disabilityNote').textContent = '保險年齡未滿16歲致成附表二完全失能程度，按當年度保險金額給付；其中保額定義涉及所繳保費加計利息。';
+    } else {
+      setBenefitValue('deathBenefit', money(adultEstimate) + ' 元', false);
+      $('deathNote').textContent = `保險年齡滿16歲後概算；事故年度應繳保費總額×1.05與保額取大。實際依身故日截算`;
+      setBenefitValue('disabilityBenefit', money(adultEstimate) + ' 元', false);
+      $('disabilityNote').textContent = `保險年齡滿16歲後概算；事故年度應繳保費總額×1.05與保額取大。須符合附表二完全失能定義`;
+    }
+
+    $('totalPayout').textContent = money(totalPayout) + ' 元';
+    $('totalPayoutNote').textContent = maturityAlreadyPaid
+      ? `本情境累計：先前已領滿期金 ${money(halfScheduledTotal)} 元 + 本次${claimType}保險金 ${money(illnessBenefit)} 元；疾病確診後契約終止，不再領祝壽金。`
+      : `本情境僅計本次${claimType}保險金 ${money(illnessBenefit)} 元。疾病確診日契約終止，尚未發生的滿期金及祝壽金不給付。`;
+
+    const status = $('waiverStatus');
+    status.classList.remove('hidden','waiver','normal'); status.classList.add('normal');
+    status.innerHTML = `<strong>條款情境：</strong>假設第${policyYear}保單年度、約${claimAge}歲首次確診${claimType}${claimType === '重大傷病' ? `（${subtype}）` : ''}，依第${claimType === '重大傷病' ? '12' : '13'}條試算 ${money(illnessBenefit)} 元。依第11條，診斷確定日契約終止；不是豁免保費後繼續有效。事故年度應繳保費總額估算 ${money(premiumBaseAtClaim)} 元；原定尚餘約 ${remainingPremiumYears} 年保費不再進入後續繳費。`;
+
+    const events = [
+      {age:age,kind:'start',title:'開始投保',amount:`年繳 ${money(annual)} 元`,desc:`原定繳費 ${currentTerm} 年`},
+      {age:maturityAge,kind:maturityAlreadyPaid?'maturity':'cancel',title:'滿期金紀錄期間屆滿',amount:maturityAlreadyPaid?`${money(halfScheduledTotal)} 元（已領）`:'不給付',desc:maturityAlreadyPaid?'疾病事故發生前已領取':'疾病事故先發生，契約已終止'},
+      {age:claimAge,kind:'claim',title:`首次確診${claimType}`,amount:`${money(illnessBenefit)} 元`,desc:`第${policyYear}保單年度；契約終止`},
+      {age:90,kind:'cancel',title:'祝壽保險金',amount:'本情境不給付',desc:'疾病事故先發生，契約已終止'}
+    ].sort((a,b)=>a.age-b.age);
+    $('timeline').innerHTML = events.map(e=>`<div class="milestone ${e.kind}"><div class="dot"></div><span class="age-tag">${e.age} 歲</span><div class="event-name">${e.title}</div><div class="event-money">${e.amount}</div><div class="event-desc">${e.desc}</div></div>`).join('');
+    $('timelineDetail').innerHTML = `<strong>${claimAge}歲事故情境：</strong>${formulaText}，試算給付 <strong>${money(illnessBenefit)} 元</strong>。依第11條契約於診斷確定日終止。${maturityAlreadyPaid ? `先前已領滿期金 ${money(halfScheduledTotal)} 元，故本情境累計為 ${money(totalPayout)} 元。` : '尚未領取的滿期金及祝壽金不再給付。'}`;
+    $('birthdayTimeline').textContent = '本次假設疾病事故先發生，契約已終止，因此不再領取祝壽保險金。若沒有先發生第11條所列契約終止事故，且90歲週年日仍生存，才符合祝壽金條件。';
+  }
+
+  $('term15').addEventListener('click', () => setTerm(15));
+  $('term20').addEventListener('click', () => setTerm(20));
+  ['gender','age','amount','claimAge','claimType','criticalSubtype'].forEach(id => {
+    $(id).addEventListener(['gender','claimType','criticalSubtype'].includes(id) ? 'change' : 'input', calculate);
+  });
+
+  $('resetButton').addEventListener('click', () => {
+    $('gender').value = 'male';
+    $('age').value = '';
+    $('amount').value = '';
+    $('claimAge').value = '';
+    $('claimType').value = '重大傷病';
+    $('criticalSubtype').value = '一般重大傷病';
+    setTerm(15);
+    $('resultArea').classList.add('hidden');
+    $('waiverStatus').classList.add('hidden');
+  });
+
+  calculate();
+</script>
+</body>
+</html>
