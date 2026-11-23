@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    #principalCode,
+    #principalAmount,
+    #term,
+    #riderCode,
+    #riderAmount {
+      font-size: 14px;
+      padding: 12px;
+    } 
+    :root { --navy:#17324d; --blue:#245b83; --bg:#f4f7fb; --line:#dce4ed; --muted:#637386; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Arial,"Noto Sans TC",sans-serif; color:#1e293b; background:var(--bg); }
+    .back-nav{margin:0 0 12px;font-size:13px}.back-nav a{color:#245b83;text-decoration:none;font-weight:700}.back-nav a:hover{text-decoration:underline}
+    .wrap { max-width:980px; margin:0 auto; padding:24px 16px 40px; }
+    .hero { background:linear-gradient(135deg,#17324d,#2b6a91); color:#fff; padding:24px; border-radius:18px; margin-bottom:18px; }
+    h1 { margin:0 0 8px; font-size:25px; }
+    .hero p { margin:0; color:#e4edf5; line-height:1.6; }
+    .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:20px; margin-bottom:16px; box-shadow:0 4px 16px rgba(24,50,77,.04); }
+    h2 { font-size:20px; margin:0 0 16px; color:var(--navy); }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:15px; }
+    .principal-grid { grid-template-columns:minmax(0,2.6fr) minmax(0,.9fr) minmax(0,.9fr); gap:12px; }
+    .principal-grid select {   font-size: 13px; padding: 11px 8px; line-height: 1.5; }
+    label { display:block; font-size:16px; font-weight:700; margin-bottom:7px; }
+    .age-label-row { display:flex; align-items:baseline; flex-wrap:wrap; gap:4px 10px; margin-bottom:7px; }
+    .age-label-row label { margin:0; }
+    .age-recommendation { font-size:16px; line-height:1.6; color:#526579; font-weight:600; }
+    .age-recommendation.invalid { color:#b42318; }
+    .age-recommendation.valid { color:#526579; }
+    input,select { width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:10px; background:#fff; font-size:15px; color:#1e293b; }
+    input:focus,select:focus { outline:2px solid #a7c9e2; border-color:var(--blue); }
+    .product-label { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .product-label label { margin-bottom:0; }
+    .product-note { display:inline-block; background:#eaf3fa; color:#245b83; border-radius:999px; padding:4px 10px; font-size:16px; font-weight:700; line-height:1.5; }
+    .hint { font-size:12px; color:var(--muted); margin-top:6px; line-height:1.5; }
+    .actions { display:flex; gap:10px; margin-top:18px; }
+    button { border:0; border-radius:10px; padding:13px 18px; font-size:15px; font-weight:700; cursor:pointer; }
+    .primary { background:var(--blue); color:#fff; flex:1; transition:background .15s,color .15s; }
+    .primary:disabled { background:#e5e7eb; color:#9ca3af; cursor:not-allowed; opacity:1; box-shadow:none; }
+    .secondary { background:#e9eef4; color:#243b53; }
+    button:disabled { opacity:.6; cursor:wait; }
+    .hidden { display:none; }
+    .error { color:#b42318; background:#fff1f0; border:1px solid #ffd2cc; padding:12px; border-radius:10px; margin-top:14px; white-space:pre-wrap; }
+    .result-head { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+    .tag { display:inline-block; background:#eaf3fa; color:#245b83; border-radius:999px; padding:5px 10px; font-size:12px; font-weight:700; }
+    .metrics { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:16px 0; }
+    .metric { background:#f6f9fc; border:1px solid var(--line); border-radius:12px; padding:16px; }
+    .metric .label { color:var(--muted); font-size:13px; font-weight:600; margin-bottom:8px; }
+    .money { font-size:25px; font-weight:800; color:var(--navy); overflow-wrap:anywhere; }
+    .submoney { font-size:13px; color:var(--muted); margin-top:5px; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    .result-columns { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; margin-top:16px; align-items:start; }
+    .result-panel { min-width:0; border:1px solid var(--line); border-radius:12px; padding:14px; background:#fff; }
+    .result-panel h3 { color:var(--navy); font-size:16px; margin:0 0 10px; }
+    .comparison-table { border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+    .comparison-table thead th { background:#eaf1f7; color:var(--navy); font-weight:700; width:auto; }
+    .comparison-table tbody tr.group-row th { background:#17324d; color:#fff; width:auto; }
+    .comparison-table tbody tr.data-row th { width:42%; background:#fafbfd; }
+    .comparison-table tbody tr.data-row td { font-weight:600; }
+    .comparison-table tbody tr.section-gap td { padding:5px; background:#f4f7fb; border-bottom:0; }
+    .activation-summary {
+      margin-top:14px;
+      padding:14px;
+      border:2px solid #9fc5e3;
+      border-radius:12px;
+      background:#f0f7fc;
+    }
+    .activation-summary h4 {
+      margin:0 0 10px;
+      color:#245b83;
+      font-size:15px;
+    }
+    .activation-summary .summary-item + .summary-item {
+      border-top:1px solid #c8ddeb;
+      margin-top:10px;
+      padding-top:10px;
+    }
+    .activation-summary .summary-label {
+      color:#526579;
+      font-size:13px;
+      font-weight:700;
+      margin-bottom:5px;
+    }
+    .activation-summary .summary-value {
+      color:#17324d;
+      font-size:17px;
+      font-weight:800;
+      overflow-wrap:anywhere;
+    }
+    @media(max-width:640px) { .comparison-table th,.comparison-table td { padding:10px 8px; font-size:13px; } .comparison-table tbody tr.data-row th { width:48%; } }
+
+    th,td { padding:12px 10px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+    th { width:35%; color:#526579; font-weight:600; background:#fafbfd; }
+    .notes { color:#596b7d; font-size:13px; line-height:1.7; padding-left:20px; }
+    .loading { color:var(--muted); font-size:14px; margin-top:12px; }
+
+    .page-tabs { display:flex; gap:10px; margin:0 0 18px; }
+    .page-tab {flex: 1; background: #e3ebf3; color: #29445f; border: 1px solid #cbd8e5; font-size: 20px; font-weight: 700; padding: 16px 18px;}
+    .page-tab.active { background:var(--blue); color:#fff; border-color:var(--blue); }
+    .coverage-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-bottom:16px; }
+    .coverage-button { background:#eaf3fa; color:#245b83; border:1px solid #b8d3e7; min-height:72px; line-height:1.6; font-size:18px; padding:16px 18px; }
+    .coverage-button.active { background:#245b83; color:#fff; border-color:#245b83; }
+    .coverage-table-wrap { width:100%; max-width:100%; overflow-x:hidden; border:1px solid var(--line); border-radius:10px; background:#fff; }
+    .coverage-table { width:100%; min-width:0; max-width:100%; border-collapse:collapse; table-layout:fixed; margin:0; }
+    .coverage-table td { border:1px solid #aab7c4; padding:6px 4px; white-space:pre-line; overflow-wrap:anywhere; word-break:break-word; font-size:17px !important; line-height:1.4; vertical-align:middle; width:auto; max-width:360px; }
+    .coverage-table td.coverage-footnote { font-size:11px !important; line-height:1.25 !important; color:#596b7d; padding-top:3px; padding-bottom:3px; }
+    .coverage-table-title { margin:0 0 14px; color:var(--navy); font-size:22px; }
+    .coverage-status { color:var(--muted); margin:12px 0; font-size:16px; line-height:1.6; }
+    .coverage-dm-links { display:flex; flex-wrap:wrap; gap:10px 18px; margin-top:12px; padding:12px 14px; background:#f6f9fc; border:1px solid #d8e3ed; border-radius:8px; line-height:1.7; }
+    .coverage-dm-links a { color:#1769aa; font-weight:600; text-decoration:underline; text-underline-offset:3px; }
+    .coverage-dm-label { color:#526579; font-weight:600; }
+    @media(max-width:640px) {
+      .page-tabs, .coverage-actions { grid-template-columns:1fr; flex-direction:column; }
+      .coverage-button { font-size:16px; padding:14px 12px; }
+      .coverage-table { width:100%; min-width:0; max-width:100%; }
+      .coverage-table td { padding:6px 3px; font-size:15px !important; line-height:1.35; max-width:260px; }
+      .coverage-table td.coverage-footnote { font-size:10px !important; line-height:1.2 !important; padding-top:2px; padding-bottom:2px; }
+      .coverage-table-title { font-size:20px; }
+    }
+    @media(max-width:760px) { .result-columns { grid-template-columns:1fr; } }
+    @media(max-width:640px) { .grid,.metrics { grid-template-columns:1fr; } .principal-grid { grid-template-columns:1fr; } .wrap{padding:14px 10px 28px;} .card{padding:16px;} h1{font-size:22px;} .money{font-size:23px;} }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="back-nav"><a href="../../index.html">← 返回保險試算中心</a></div>
+  <div class="hero">
+    <h1>實支實付保費比較</h1>
+    <p>輸入年齡、性別，選擇主約及附約，自動查詢商品費率及加總。</p>
+  </div>
+
+  <div class="page-tabs" role="tablist" aria-label="功能分頁">
+    <button id="premiumTab" class="page-tab active" type="button" role="tab" aria-selected="true" onclick="switchPage('premium')">保費比較</button>
+    <button id="coverageTab" class="page-tab" type="button" role="tab" aria-selected="false" onclick="switchPage('coverage')">保障內容</button>
+  </div>
+
+  <div id="premiumPage" class="page-view">
+
+  <div class="card">
+    <h2>客戶資料</h2>
+    <div class="grid">
+      <div>
+        <div class="age-label-row">
+          <label for="age">投保年齡（歲）</label>
+          <span id="ageRecommendation" class="age-recommendation" aria-live="polite">正在取得建議年齡……</span>
+        </div>
+        <input id="age" type="number" min="0" max="100" step="1" placeholder="請先輸入年齡" oninput="scheduleAgeRecommendation()">
+      </div>
+      <div>
+        <label for="gender">性別</label>
+        <select id="gender" onchange="refreshAgeRecommendation()"><option value="男性">男性</option><option value="女性">女性</option></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>主約選擇</h2>
+    <div class="grid principal-grid">
+      <div>
+        <div class="product-label"><label for="principalCode">商品名稱</label><span id="principalNote" class="product-note" aria-live="polite">保險年齡到達65歲啟動實支</span></div>
+        <select id="principalCode" onchange="updatePrincipalNote(); refreshAgeRecommendation()">
+          <option value="FPA">FPA 點實成金住院醫療終身保險(外溢型)</option>
+          <option value="FPC">FPC 點實成金住院醫療終身保險(外溢型)</option>
+          <option value="FG3">FG3 倍愛醫靠住院醫療定期保險(外溢型)(A型)</option>
+          <option value="FG4">FG4 倍愛醫靠住院醫療定期保險(外溢型)(B型)</option>
+        </select>
+      </div>
+      <div>
+        <label for="principalAmount">主約保額</label>
+        <select id="principalAmount" onchange="refreshAgeRecommendation()">
+          <option value="10">10 萬元</option><option value="20">20 萬元</option><option value="30">30 萬元</option>
+        </select>
+      </div>
+      <div>
+        <label for="term">主約繳費年期</label>
+        <select id="term" onchange="refreshAgeRecommendation()"><option value="10">10 年期</option><option value="20">20 年期</option><option value="30">30 年期</option></select>
+      </div>
+    </div>
+    <div class="hint">系統會依商品、年齡、性別、保額與繳費年期，查詢主約年繳保費；主約總繳保費依年繳保費 × 繳費年期計算。</div>
+  </div>
+
+  <div class="card">
+    <h2>附約選擇</h2>
+    <div class="grid">
+      <div>
+        <label for="riderCode">商品名稱</label>
+        <select id="riderCode" onchange="refreshAgeRecommendation()">
+          <option value="">不加附約</option>
+          <option value="CV4">CV4 新實全心意PLUS住院醫療健康保險附約(外溢型)</option>
+          <option value="CV">CV 新真全意住院醫療健康保險附約</option>
+        </select>
+      </div>
+      <div>
+        <label for="riderAmount">附約保額</label>
+        <select id="riderAmount" onchange="refreshAgeRecommendation()"><option value="M10">M10</option><option value="M20">M20</option><option value="M30">M30</option></select>
+      </div>
+    </div>
+    <div class="hint">附約保障期間：CV4 保障至 80 歲；CV 保障至 75 歲。下方另列出啟動實支後至附約保障期滿的預估總繳保費。</div>
+    <div class="actions">
+      <button class="primary" id="calcBtn" onclick="calculate()" disabled>開始試算</button>
+      <button class="secondary" onclick="resetForm()">清除</button>
+    </div>
+    <div id="loading" class="loading hidden">正在讀取費率並計算，請稍候……</div>
+    <div id="error" class="error hidden"></div>
+  </div>
+
+  <div id="result" class="card hidden">
+    <div class="result-head">
+      <h2 style="margin:0">保費比較結果</h2>
+      <span id="customerTag" class="tag"></span>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="label">主約當年度保費</div><div id="principalAnnual" class="money"></div><div class="submoney">依選定年齡、性別、保額及年期查詢</div></div>
+      <div class="metric"><div class="label">主約總繳保費</div><div id="principalTotal" class="money"></div><div class="submoney">主約總繳保費</div></div>
+      <div class="metric"><div class="label">附約當年度保費</div><div id="riderAnnual" class="money">—</div><div class="submoney">依投保年齡查詢；未選附約則不顯示</div></div>
+      <div class="metric"><div class="label">附約加總至最後年齡保費</div><div id="riderTotal" class="money">—</div><div class="submoney">從投保年齡逐年加總至費率表最後年齡</div></div>
+    </div>
+    <div class="result-columns">
+      <div class="result-panel">
+        <h3>主約明細</h3>
+        <table class="comparison-table">
+          <tbody id="principalRows"></tbody>
+        </table>
+      </div>
+      <div class="result-panel">
+        <h3>附約明細</h3>
+        <table class="comparison-table">
+          <tbody id="riderRows"></tbody>
+        </table>
+        <div id="activationSummary" class="activation-summary">
+          <h4>主約啟動實支試算</h4>
+          <div class="summary-item">
+            <div class="summary-label">主約啟動實支年齡</div>
+            <div id="activationAgeValue" class="summary-value">—</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">主約啟動實支後至附約保障期滿總繳保費</div>
+            <div id="activationTotalValue" class="summary-value">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <h2 style="margin-top:20px">計算說明</h2>
+    <ul id="notes" class="notes"></ul>
+  </div>
+  </div>
+
+  <div id="coveragePage" class="page-view hidden">
+    <div class="card">
+      <h2>保障內容</h2>
+      <p class="hint" style="font-size:14px;margin-top:-6px;margin-bottom:14px;">請選擇商品，查看對應工作表的保障給付內容。</p>
+      <div class="coverage-actions">
+        <button id="fpCoverageButton" class="coverage-button" type="button" onclick="loadCoverageContent('FP')">點實成金住院醫療終身保險(外溢型)</button>
+        <button id="fgCoverageButton" class="coverage-button" type="button" onclick="loadCoverageContent('FG')">倍愛醫靠住院醫療定期保險(外溢型)</button>
+      </div>
+      <div id="coverageStatus" class="coverage-status">請先點選上方商品按鈕。</div>
+      <div id="coverageResult" class="hidden">
+        <h3 id="coverageTitle" class="coverage-table-title"></h3>
+        <div class="coverage-table-wrap">
+          <table class="coverage-table" id="coverageTable" aria-label="保障內容表格">
+            <colgroup>
+              <col style="width:8%">
+              <col style="width:8%">
+              <col style="width:11%">
+              <col style="width:19%">
+              <col style="width:18%">
+              <col style="width:18%">
+              <col style="width:18%">
+            </colgroup>
+            <tbody id="coverageTableBody"></tbody>
+          </table>
+        </div>
+        <div id="coverageDmLinks" class="coverage-dm-links" aria-label="商品DM連結"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const money = n => new Intl.NumberFormat('zh-TW', {style:'currency',currency:'TWD',maximumFractionDigits:0}).format(n);
+  const el = id => document.getElementById(id);
+  let DB = null;
+  let currentCoverageType = 'FP';
+  let ageRecommendationTimer = null;
+  let ageRecommendationRequestId = 0;
+  let ageRecommendationValid = false;
+  let calculationInProgress = false;
+
+  const CONFIG = {
+    principalCoverageAges:{FPA:95,FPC:95,FG3:90,FG4:90},
+    riderCoverageAges:{CV4:80,CV:75},
+    principalProducts:{
+      FPA:'FPA點實成金住院醫療終身保險(外溢型)',
+      FPC:'FPC點實成金住院醫療終身保險(外溢型)',
+      FG3:'FG3倍愛醫靠住院醫療定期保險(外溢型)(A型)',
+      FG4:'FG4倍愛醫靠住院醫療定期保險(外溢型)(B型)'
+    },
+    riders:{
+      CV4:'CV4新實全心意PLUS住院醫療健康保險附約(外溢型)',
+      CV:'CV新真全意住院醫療健康保險附約'
+    }
+  };
+
+  function sheetValues(name){ return DB && DB[name] ? DB[name].values : []; }
+  function norm(v){ return String(v == null ? '' : v).replace(/\s+/g,'').trim(); }
+  function num(v){ if(v === '' || v == null) return null; const n=Number(v); return Number.isFinite(n)?n:null; }
+
+  function switchPage(page) {
+    const isPremium = page === 'premium';
+    el('premiumPage').classList.toggle('hidden', !isPremium);
+    el('coveragePage').classList.toggle('hidden', isPremium);
+    el('premiumTab').classList.toggle('active', isPremium);
+    el('coverageTab').classList.toggle('active', !isPremium);
+    el('premiumTab').setAttribute('aria-selected', String(isPremium));
+    el('coverageTab').setAttribute('aria-selected', String(!isPremium));
+  }
+
+  function getPrincipalColumn(sheet, gender, amount, term) {
+    const values=sheetValues(sheet);
+    if(values.length<4) return -1;
+    const wantedTerm=norm(term+' 年期'), wantedAmount=norm(amount+' 萬'), wantedGender=norm(gender);
+    for(let c=1;c<(values[0]||[]).length;c++){
+      if(norm(values[0][c])===wantedTerm && norm((values[1]||[])[c])===wantedAmount && norm((values[2]||[])[c])===wantedGender) return c;
+    }
+    return -1;
+  }
+
+  function getPrincipalAges(sheet, gender, amount, term) {
+    const values=sheetValues(sheet), col=getPrincipalColumn(sheet,gender,amount,term);
+    if(col<0) return [];
+    const ages=[];
+    for(let r=3;r<values.length;r++){
+      const age=num(values[r][0]), premium=num(values[r][col]);
+      if(age!==null && premium!==null) ages.push(age);
+    }
+    return ages;
+  }
+
+  function getRiderColumn(sheet, gender, plan) {
+    const values=sheetValues(sheet);
+    if(values.length<3) return -1;
+    for(let c=1;c<(values[0]||[]).length;c++){
+      const planHeader=norm(values[0][c]), genderHeader=norm((values[1]||[])[c]);
+      let effectivePlan=planHeader;
+      if(!effectivePlan && c>1) effectivePlan=norm(values[0][c-1]);
+      if(effectivePlan===norm(plan) && genderHeader===norm(gender)) return c;
+    }
+    return -1;
+  }
+
+  function getRiderAges(sheet, gender, plan) {
+    const values=sheetValues(sheet), col=getRiderColumn(sheet,gender,plan);
+    if(col<0) return [];
+    const ages=[];
+    for(let r=2;r<values.length;r++){
+      const age=num(values[r][0]), premium=num(values[r][col]);
+      if(age!==null && premium!==null) ages.push(age);
+    }
+    return ages;
+  }
+
+  function formatAgeRanges(ages) {
+    const sorted=Array.from(new Set((ages||[]).map(Number).filter(Number.isFinite))).sort((a,b)=>a-b);
+    if(!sorted.length) return '';
+    const ranges=[]; let start=sorted[0], end=sorted[0];
+    for(let i=1;i<sorted.length;i++){
+      if(sorted[i]===end+1) end=sorted[i];
+      else { ranges.push(start===end?start+' 歲':start+'～'+end+' 歲'); start=end=sorted[i]; }
+    }
+    ranges.push(start===end?start+' 歲':start+'～'+end+' 歲');
+    return ranges.join('、');
+  }
+
+  function getCurrentInputForAgeHint() {
+    const rawAge=el('age').value.trim();
+    return {age:rawAge===''?null:Number(rawAge),gender:el('gender').value,
+      principalCode:el('principalCode').value,principalAmount:Number(el('principalAmount').value),
+      term:Number(el('term').value),riderCode:el('riderCode').value,riderAmount:el('riderAmount').value};
+  }
+
+  function updateCalculateButton() {
+    const button=el('calcBtn'); if(!button) return;
+    const rawAge=el('age').value.trim();
+    const ageIsEntered=rawAge!=='' && Number.isInteger(Number(rawAge)) && Number(rawAge)>=0;
+    button.disabled=!DB || calculationInProgress || !ageIsEntered || !ageRecommendationValid;
+  }
+
+  function scheduleAgeRecommendation() {
+    ageRecommendationValid=false; updateCalculateButton();
+    if(ageRecommendationTimer) clearTimeout(ageRecommendationTimer);
+    ageRecommendationTimer=setTimeout(refreshAgeRecommendation,250);
+  }
+
+  function refreshAgeRecommendation() {
+    const target=el('ageRecommendation'); if(!target || !DB) return;
+    const requestId=++ageRecommendationRequestId, input=getCurrentInputForAgeHint();
+    ageRecommendationValid=false; updateCalculateButton();
+    target.className='age-recommendation'; target.textContent='建議年齡更新中……';
+    const principalAges=getPrincipalAges(input.principalCode,input.gender,input.principalAmount,input.term);
+    let availableAges=principalAges;
+    if(input.riderCode){
+      const riderAges=getRiderAges(input.riderCode,input.gender,input.riderAmount);
+      const set=new Set(riderAges); availableAges=principalAges.filter(a=>set.has(a));
+    }
+    availableAges=Array.from(new Set(availableAges)).sort((a,b)=>a-b);
+    const ageRanges=formatAgeRanges(availableAges);
+    const valid=input.age!==null && Number.isInteger(input.age) && availableAges.includes(input.age);
+    if(requestId!==ageRecommendationRequestId) return;
+    if(!availableAges.length){
+      target.textContent='此商品、性別、保額、年期及附約組合沒有共同可用年齡';
+      if(input.age!==null) target.classList.add('invalid');
+    } else if(input.age===null || !Number.isInteger(input.age)){
+      target.textContent='建議輸入年齡：'+ageRanges;
+    } else if(valid){
+      ageRecommendationValid=true; target.classList.add('valid');
+      target.textContent='建議輸入年齡：'+ageRanges+'（目前符合）';
+    } else {
+      target.classList.add('invalid'); target.textContent='目前年齡不符合，建議輸入：'+ageRanges;
+    }
+    updateCalculateButton();
+  }
+
+  function updatePrincipalNote() {
+    const messages={FG4:'保險年齡到達70歲啟動實支',FG3:'繳費期滿啟動實支',FPA:'保險年齡到達65歲啟動實支',FPC:'保險年齡到達75歲啟動實支'};
+    el('principalNote').textContent=messages[el('principalCode').value]||'';
+  }
+
+  function principalAnnual(sheetName, age, gender, amount, term) {
+    const values=sheetValues(sheetName), col=getPrincipalColumn(sheetName,gender,amount,term);
+    if(values.length<4) throw new Error(sheetName+' 工作表資料格式不正確。');
+    if(col<0) throw new Error(sheetName+' 找不到「'+term+' 年期、'+amount+' 萬、'+gender+'」的費率欄位。');
+    const ages=getPrincipalAges(sheetName,gender,amount,term);
+    for(let r=3;r<values.length;r++){
+      if(num(values[r][0])===age){
+        const premium=num(values[r][col]);
+        if(premium===null) throw new Error(sheetName+' 目前選擇條件沒有 '+age+' 歲的對應保費。建議年齡：'+formatAgeRanges(ages)+'。');
+        return premium;
+      }
+    }
+    throw new Error(sheetName+' 目前選擇條件沒有 '+age+' 歲的對應保費。建議年齡：'+formatAgeRanges(ages)+'。');
+  }
+
+  function riderPremium(sheetName, age, gender, plan) {
+    const values=sheetValues(sheetName), col=getRiderColumn(sheetName,gender,plan);
+    if(values.length<3) throw new Error(sheetName+' 工作表資料格式不正確。');
+    if(col<0) throw new Error(sheetName+' 找不到「'+plan+'、'+gender+'」的費率欄位。');
+    const ageToRow={}; let lastAge=null;
+    for(let r=2;r<values.length;r++){
+      const a=num(values[r][0]);
+      if(a!==null){ageToRow[a]=r;if(lastAge===null||a>lastAge)lastAge=a;}
+    }
+    const available=Object.keys(ageToRow).map(Number).filter(a=>num(values[ageToRow[a]][col])!==null);
+    if(lastAge===null || ageToRow[age]===undefined) throw new Error(sheetName+' 沒有 '+age+' 歲的附約保費。此方案與性別可用年齡：'+(formatAgeRanges(available)||'目前沒有可用年齡')+'。');
+    const first=num(values[ageToRow[age]][col]);
+    if(first===null) throw new Error(sheetName+' 的 '+age+' 歲沒有附約保費。此方案與性別可用年齡：'+formatAgeRanges(available)+'。');
+    let total=0;
+    for(let a=age;a<=lastAge;a++){
+      const row=ageToRow[a];
+      if(row===undefined) throw new Error(sheetName+' 缺少 '+a+' 歲的費率，無法完整加總附約總繳保費。');
+      const premium=num(values[row][col]);
+      if(premium===null) throw new Error(sheetName+' 的 '+a+' 歲費率空白，無法完整加總附約總繳保費。');
+      total+=premium;
+    }
+    return {firstYear:first,total,lastAge};
+  }
+
+  function getActivationAge(code, age, term) {
+    if(code==='FG4') return 70;
+    if(code==='FG3') return age+term;
+    if(code==='FPA') return 65;
+    if(code==='FPC') return 75;
+    throw new Error('無法判斷主約啟動實支年齡。');
+  }
+
+  function riderTotalFromAge(sheetName, gender, plan, startAge, coverageAge) {
+    if(startAge>coverageAge) return null;
+    const values=sheetValues(sheetName), col=getRiderColumn(sheetName,gender,plan);
+    if(col<0) throw new Error(sheetName+' 找不到「'+plan+'、'+gender+'」的費率欄位。');
+    const ageToRow={};
+    for(let r=2;r<values.length;r++){const a=num(values[r][0]);if(a!==null)ageToRow[a]=r;}
+    let total=0;
+    for(let a=startAge;a<=coverageAge;a++){
+      const row=ageToRow[a];
+      if(row===undefined) throw new Error(sheetName+' 缺少 '+a+' 歲的費率，無法計算啟動實支後的附約總繳保費。');
+      const premium=num(values[row][col]);
+      if(premium===null) throw new Error(sheetName+' 的 '+a+' 歲費率空白，無法計算啟動實支後的附約總繳保費。');
+      total+=premium;
+    }
+    return total;
+  }
+
+  function calculate() {
+    el('error').classList.add('hidden'); el('result').classList.add('hidden');
+    const rawAge=el('age').value.trim();
+    if(rawAge==='' || !Number.isInteger(Number(rawAge)) || Number(rawAge)<0){showError('請先輸入有效的投保年齡');el('age').focus();return;}
+    if(!ageRecommendationValid){showError('目前年齡不符合所選商品組合的費率條件，請先確認建議年齡。');return;}
+    const input={age:Number(rawAge),gender:el('gender').value,principalCode:el('principalCode').value,
+      principalAmount:Number(el('principalAmount').value),term:Number(el('term').value),
+      riderCode:el('riderCode').value,riderAmount:el('riderAmount').value};
+    calculationInProgress=true; updateCalculateButton(); el('loading').classList.remove('hidden');
+    try {
+      const pAnnual=principalAnnual(input.principalCode,input.age,input.gender,input.principalAmount,input.term);
+      let rider=null;
+      if(input.riderCode){
+        const rr=riderPremium(input.riderCode,input.age,input.gender,input.riderAmount);
+        const activationAge=getActivationAge(input.principalCode,input.age,input.term);
+        const riderCoverageAge=CONFIG.riderCoverageAges[input.riderCode];
+        rider={code:input.riderCode,name:CONFIG.riders[input.riderCode],amount:input.riderAmount,
+          annualPremium:rr.firstYear,totalPremium:rr.total,lastAge:rr.lastAge,coverageAge:riderCoverageAge,
+          activationAge,activationTotalPremium:riderTotalFromAge(input.riderCode,input.gender,input.riderAmount,
+            Math.max(input.age,activationAge),riderCoverageAge)};
+      }
+      const resultData={age:input.age,gender:input.gender,
+        principal:{code:input.principalCode,name:CONFIG.principalProducts[input.principalCode],
+          amount:input.principalAmount+'萬元',term:input.term,coverageAge:CONFIG.principalCoverageAges[input.principalCode],
+          annualPremium:pAnnual,totalPremium:pAnnual*input.term},rider,
+        notes:[
+          '主約總繳保費依指定方式，以投保年齡對應的年繳保費乘以繳費年期計算。',
+          rider?('附約總繳保費依費率表，從投保年齡 '+input.age+' 歲逐年加總至 '+rider.lastAge+' 歲；啟動實支後的預估總繳保費則從 '+Math.max(input.age,rider.activationAge)+' 歲加總至附約保障期滿 '+rider.coverageAge+' 歲。'):'未選擇附約，因此不計入附約保費。',
+          '本結果為依提供的費率表計算之估算值，實際承保及保費以保險公司正式核保與建議書為準。'
+        ]};
+      renderResult(resultData);
+    } catch(err){showError(err && err.message ? err.message : String(err));}
+    finally{calculationInProgress=false;updateCalculateButton();el('loading').classList.add('hidden');}
+  }
+
+  function renderResult(data) {
+    el('result').classList.remove('hidden');
+    el('customerTag').textContent=data.age+' 歲｜'+data.gender;
+    el('principalAnnual').textContent=money(data.principal.annualPremium);
+    el('principalTotal').textContent=money(data.principal.totalPremium);
+    el('riderAnnual').textContent=data.rider?money(data.rider.annualPremium):'未選擇附約';
+    el('riderTotal').textContent=data.rider?money(data.rider.totalPremium):'未選擇附約';
+    const principalRows=[
+      ['商品名稱',data.principal.name+'（'+data.principal.code+'）'],['主約保額',data.principal.amount],
+      ['繳費年期',data.principal.term+' 年期'],['保障期間','保障至 '+data.principal.coverageAge+' 歲'],
+      ['主約當年度保費',money(data.principal.annualPremium)],['主約總繳保費',money(data.principal.totalPremium)]
+    ];
+    el('principalRows').innerHTML=principalRows.map(row=>'<tr class="data-row"><th>'+escapeHtml(row[0])+'</th><td>'+escapeHtml(row[1])+'</td></tr>').join('');
+    const riderRows=data.rider?[
+      ['商品名稱',data.rider.name+'（'+data.rider.code+'）'],['附約保額',data.rider.amount],
+      ['保障期間','保障至 '+data.rider.coverageAge+' 歲'],['附約當年度保費',money(data.rider.annualPremium)],
+      ['附約加總年齡區間',data.age+' 歲至 '+data.rider.lastAge+' 歲'],
+      ['附約從投保年齡加總至最後年齡',money(data.rider.totalPremium)]
+    ]:[
+      ['商品名稱','未選擇附約'],['附約保額','—'],['保障期間','—'],['附約加總年齡區間','—'],
+      ['附約當年度保費','—'],['附約從投保年齡加總至最後年齡','—']
+    ];
+    el('riderRows').innerHTML=riderRows.map(row=>'<tr class="data-row"><th>'+escapeHtml(row[0])+'</th><td>'+escapeHtml(row[1])+'</td></tr>').join('');
+    el('activationAgeValue').textContent=data.rider?data.rider.activationAge+' 歲':'—';
+    el('activationTotalValue').textContent=!data.rider?'—':(data.rider.activationTotalPremium===null?'不適用（啟動年齡已超過附約保障期間）':money(data.rider.activationTotalPremium));
+    el('notes').innerHTML=data.notes.map(note=>'<li>'+escapeHtml(note)+'</li>').join('');
+  }
+
+  function loadCoverageContent(type) {
+    currentCoverageType=type;
+    const buttonId=type==='FP'?'fpCoverageButton':'fgCoverageButton';
+    const otherButtonId=type==='FP'?'fgCoverageButton':'fpCoverageButton';
+    el(buttonId).classList.add('active');el(otherButtonId).classList.remove('active');
+    el('coverageStatus').textContent='正在讀取保障內容……';el('coverageResult').classList.add('hidden');
+    const sheetName=type==='FP'?'FP保障內容':'FG保障內容';
+    const data=DB[sheetName];
+    if(!data){el('coverageStatus').textContent='找不到保障內容資料：'+sheetName;return;}
+    renderCoverageContent({title:type==='FP'?'點實成金住院醫療終身保險(外溢型)｜保障內容':'倍愛醫靠住院醫療定期保險(外溢型)｜保障內容',
+      sheetName, ...data});
+  }
+
+  function renderCoverageContent(data) {
+    const body=el('coverageTableBody');body.innerHTML='';
+    const values=data.values||[], merges=data.merges||[], mergedStarts={},covered={};
+    merges.forEach(m=>{
+      mergedStarts[m.row+','+m.col]=m;
+      for(let r=m.row;r<m.row+m.rowSpan;r++)for(let c=m.col;c<m.col+m.colSpan;c++)if(r!==m.row||c!==m.col)covered[r+','+c]=true;
+    });
+    values.forEach((row,r)=>{
+      const tr=document.createElement('tr');
+      row.forEach((value,c)=>{
+        if(covered[(r+1)+','+(c+1)])return;
+        const td=document.createElement('td'),merge=mergedStarts[(r+1)+','+(c+1)];
+        if(merge){if(merge.rowSpan>1)td.rowSpan=merge.rowSpan;if(merge.colSpan>1)td.colSpan=merge.colSpan;}
+        td.textContent=value==null?'':String(value);
+        const cellText=String(value==null?'':value).replace(/[\u200B\uFEFF]/g,'').trim();
+        const isFootnote=/(?:^|\n)\s*(?:※|＊|\*|註\s*\d*\s*[:：]?|附註\s*[:：]?|備註\s*[:：]?|說明\s*[:：]?)/.test(cellText);
+        if(isFootnote){td.classList.add('coverage-footnote');td.style.setProperty('font-size',window.matchMedia('(max-width: 640px)').matches?'10px':'11px','important');td.style.setProperty('line-height',window.matchMedia('(max-width: 640px)').matches?'1.2':'1.25','important');}
+        const bg=data.backgrounds?.[r]?.[c],color=data.fontColors?.[r]?.[c],weight=data.fontWeights?.[r]?.[c];
+        const align=data.horizontalAlignments?.[r]?.[c],valign=data.verticalAlignments?.[r]?.[c],size=data.fontSizes?.[r]?.[c];
+        if(bg)td.style.backgroundColor=bg;if(color)td.style.color=color;if(weight)td.style.fontWeight=weight;
+        if(align)td.style.textAlign=align;if(valign)td.style.verticalAlign=valign;if(size)td.style.fontSize=Math.min(Number(size),18)+'px';
+        tr.appendChild(td);
+      });
+      body.appendChild(tr);
+    });
+    el('coverageTitle').textContent=data.title;
+    const dmLinks=el('coverageDmLinks');
+    const dmItems=currentCoverageType==='FP'
+      ?[{label:'點實成金住院醫療終身保險(外溢型)',url:'https://www.cathaylife.com.tw/official/content/dam/cathaylife-official/files/products/health-reimbursement-benefits/FPAFPC_DM.pdf'}]
+      :[
+        {label:'倍愛醫靠住院醫療定期保險(外溢型)(A型)',url:'https://www.cathaylife.com.tw/official/content/dam/cathaylife-official/files/products/health-reimbursement-benefits/FG3_DM.pdf'},
+        {label:'倍愛醫靠住院醫療定期保險(外溢型)(B型)',url:'https://www.cathaylife.com.tw/official/content/dam/cathaylife-official/files/products/health-reimbursement-benefits/FG4_DM.pdf'}
+      ];
+    dmLinks.innerHTML=dmItems.map(item=>'<span><a class="coverage-dm-link" href="'+item.url+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(item.label)+'</a></span>').join('');
+    el('coverageResult').classList.remove('hidden');el('coverageStatus').textContent='已載入：'+data.sheetName;
+  }
+
+  function showError(message){el('error').textContent=message;el('error').classList.remove('hidden');}
+  function resetForm(){
+    el('age').value='';el('gender').value='男性';el('principalCode').value='FPA';updatePrincipalNote();
+    el('principalAmount').value='10';el('term').value='10';el('riderCode').value='';el('riderAmount').value='M10';
+    el('error').classList.add('hidden');el('result').classList.add('hidden');el('age').focus();refreshAgeRecommendation();
+  }
+  function escapeHtml(value){return String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+  async function init() {
+    try {
+      const response=await fetch('../../data.json');
+      if(!response.ok)throw new Error('資料檔載入失敗（HTTP '+response.status+'）');
+      DB=await response.json();
+      updatePrincipalNote();
+      refreshAgeRecommendation();
+      el('coverageStatus').textContent='保障內容資料已備妥，請選擇上方商品。';
+    } catch(err) {
+      showError('無法載入試算資料：'+err.message+'。請確認網站已完整上傳，且 data.json 位於網站根目錄。');
+    }
+    updateCalculateButton();
+  }
+  init();
+</script>
+</body>
+</html>
