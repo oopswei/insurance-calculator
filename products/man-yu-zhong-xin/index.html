@@ -105,12 +105,10 @@
 <main class="wrap">
   <div class="back-nav"><a href="../../index.html">← 返回保險試算中心</a></div>
   <header class="header">
-    <div class="eyebrow">INSURANCE PREMIUM CALCULATOR</div>
     <div class="title-row">
-      <h1>滿溢鍾心保費試算器</h1>
+      <h1>滿溢鍾心保險金預估</h1>
       <a class="dm-title-link" href="https://www.cathaylife.com.tw/official/content/dam/cathaylife-official/files/products/health-illness/ZCQZCR_DM.pdf" target="_blank" rel="noopener noreferrer">商品 DM ↗</a>
     </div>
-    <p class="subtitle">國泰人壽滿溢鍾心重大傷病定期保險（外溢型）</p>
   </header>
 
   <section class="panel">
@@ -427,7 +425,7 @@
 
     const events = [
       {age:age,kind:'start',title:'開始投保',amount:`年繳 ${money(annual)} 元`,desc:`原定繳費 ${currentTerm} 年`},
-      {age:maturityAge,kind:maturityAlreadyPaid?'maturity':'cancel',title:'滿期金紀錄期間屆滿',amount:maturityAlreadyPaid?`${money(halfScheduledTotal)} 元（已領）`:'不給付',desc:maturityAlreadyPaid?'疾病事故發生前已領取':'疾病事故先發生，契約已終止'},
+      {age:maturityAge,kind:maturityAlreadyPaid?'maturity':'cancel',title:'滿期金紀錄期間屆滿',amount:maturityAlreadyPaid?`${money(halfScheduledTotal)} 元`:'不給付',desc:maturityAlreadyPaid?'疾病事故發生前已領取':'疾病事故先發生，契約已終止'},
       {age:claimAge,kind:'claim',title:`首次確診${claimType}`,amount:`${money(illnessBenefit)} 元`,desc:`第${policyYear}保單年度；契約終止`},
       {age:90,kind:'cancel',title:'祝壽保險金',amount:'本情境不給付',desc:'疾病事故先發生，契約已終止'}
     ].sort((a,b)=>a.age-b.age);
