@@ -145,10 +145,13 @@
     <div class="grid">
       <div>
         <div class="age-label-row">
-          <label for="age">投保年齡（歲）</label>
+          <label for="ageMode">投保年齡輸入方式</label>
           <span id="ageRecommendation" class="age-recommendation" aria-live="polite">正在取得建議年齡……</span>
         </div>
-        <input id="age" type="number" min="0" max="100" step="1" placeholder="請先輸入年齡" oninput="scheduleAgeRecommendation()">
+        <select id="ageMode"><option value="birthday">出生年月日（自動換算保險年齡）</option><option value="age">直接輸入保險年齡</option></select>
+        <input id="birthDate" type="date" aria-label="出生年月日" onchange="scheduleAgeRecommendation()">
+        <input id="age" type="number" min="0" max="100" step="1" placeholder="請先輸入保險年齡" class="hidden" oninput="scheduleAgeRecommendation()">
+        <div class="hint" id="ageCalculatedHint">依今天日期及生日是否已滿半年換算保險年齡。</div>
       </div>
       <div>
         <label for="gender">性別</label>
@@ -375,17 +378,32 @@
     return ranges.join('、');
   }
 
+  function insuranceAgeFromDates(birthValue, asOfValue) {
+    if(!birthValue || !asOfValue) return null;
+    const [by,bm,bd]=birthValue.split('-').map(Number),[ay,am,ad]=asOfValue.split('-').map(Number);
+    const birth=new Date(by,bm-1,bd),asOf=new Date(ay,am-1,ad); if(asOf<birth)return null;
+    const thisBirthday=new Date(ay,bm-1,bd),lastBirthday=thisBirthday<=asOf?thisBirthday:new Date(ay-1,bm-1,bd);
+    let age=lastBirthday.getFullYear()-by;const mark=new Date(lastBirthday);mark.setMonth(mark.getMonth()+6);
+    if(asOf>=mark)age++;return age;
+  }
+  function localToday(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+  function effectiveAge(){
+    if(el('ageMode').value==='age')return el('age').value.trim()===''?null:Number(el('age').value);
+    const age=insuranceAgeFromDates(el('birthDate').value,localToday());
+    el('ageCalculatedHint').textContent=age===null?'請輸入有效出生日期。':`依今日 ${localToday()} 換算，保險年齡為 ${age} 歲。`;
+    return age;
+  }
   function getCurrentInputForAgeHint() {
-    const rawAge=el('age').value.trim();
-    return {age:rawAge===''?null:Number(rawAge),gender:el('gender').value,
+    const age=effectiveAge();
+    return {age,gender:el('gender').value,
       principalCode:el('principalCode').value,principalAmount:Number(el('principalAmount').value),
       term:Number(el('term').value),riderCode:el('riderCode').value,riderAmount:el('riderAmount').value};
   }
 
   function updateCalculateButton() {
     const button=el('calcBtn'); if(!button) return;
-    const rawAge=el('age').value.trim();
-    const ageIsEntered=rawAge!=='' && Number.isInteger(Number(rawAge)) && Number(rawAge)>=0;
+    const age=effectiveAge();
+    const ageIsEntered=age!==null && Number.isInteger(age) && age>=0;
     button.disabled=!DB || calculationInProgress || !ageIsEntered || !ageRecommendationValid;
   }
 
@@ -495,10 +513,10 @@
 
   function calculate() {
     el('error').classList.add('hidden'); el('result').classList.add('hidden');
-    const rawAge=el('age').value.trim();
-    if(rawAge==='' || !Number.isInteger(Number(rawAge)) || Number(rawAge)<0){showError('請先輸入有效的投保年齡');el('age').focus();return;}
+    const age=effectiveAge();
+    if(age===null || !Number.isInteger(age) || age<0){showError('請輸入有效的出生日期或保險年齡');return;}
     if(!ageRecommendationValid){showError('目前年齡不符合所選商品組合的費率條件，請先確認建議年齡。');return;}
-    const input={age:Number(rawAge),gender:el('gender').value,principalCode:el('principalCode').value,
+    const input={age,gender:el('gender').value,principalCode:el('principalCode').value,
       principalAmount:Number(el('principalAmount').value),term:Number(el('term').value),
       riderCode:el('riderCode').value,riderAmount:el('riderAmount').value};
     calculationInProgress=true; updateCalculateButton(); el('loading').classList.remove('hidden');
@@ -608,11 +626,13 @@
 
   function showError(message){el('error').textContent=message;el('error').classList.remove('hidden');}
   function resetForm(){
-    el('age').value='';el('gender').value='男性';el('principalCode').value='FPA';updatePrincipalNote();
+    el('age').value='';el('birthDate').value='';el('ageMode').value='birthday';el('age').classList.add('hidden');el('birthDate').classList.remove('hidden');el('ageCalculatedHint').textContent='依今天日期及生日是否已滿半年換算保險年齡。';el('gender').value='男性';el('principalCode').value='FPA';updatePrincipalNote();
     el('principalAmount').value='10';el('term').value='10';el('riderCode').value='';el('riderAmount').value='M10';
     el('error').classList.add('hidden');el('result').classList.add('hidden');el('age').focus();refreshAgeRecommendation();
   }
   function escapeHtml(value){return String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+  el('ageMode').addEventListener('change',()=>{const byDate=el('ageMode').value==='birthday';el('birthDate').classList.toggle('hidden',!byDate);el('age').classList.toggle('hidden',byDate);scheduleAgeRecommendation();});
 
   async function init() {
     try {

@@ -14,6 +14,8 @@ insurance-calculator-center/
 
 - `index.html`：試算中心入口。
 - `products/man-yu-zhong-xin/index.html`：滿溢鍾心商品試算器。
+- `products/shi-zhi-shi-fu/index.html`：實支實付保費比較。
+- `data.json`：實支實付費率與保障內容資料，由原始 Excel 工作表匯出。
 - 新增商品時，新增 `products/<商品代碼>/index.html`，再在入口 `index.html` 新增商品卡片。
 
 ## 部署到 GitHub Pages
@@ -51,3 +53,7 @@ GitHub Pages 會直接託管 HTML、CSS、JavaScript 等靜態檔案；此版已
 - GitHub Pages 網站是公開網站；不要放入客戶姓名、身分證字號、保單號碼、登入憑證或其他個人資料。
 - 本版為靜態前端試算，不包含資料庫、登入權限或個人試算紀錄。
 - 本版保留整歲情境估算限制，正式結果仍以保單條款及保險公司核定為準。
+
+## 保險年齡輸入方式
+
+兩個商品的投保年齡均可選擇「出生年月日」或「直接輸入保險年齡」。滿溢鍾心另可針對疾病情境輸入預估診斷日期，系統會依出生日期換算事故當時保險年齡；也可直接輸入事故保險年齡。生日滿六個月時，保險年齡加一歲。生日模式的投保年齡以使用者裝置當地今日日期計算。
