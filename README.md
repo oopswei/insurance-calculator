@@ -1,59 +1,52 @@
-# 保險試算中心（GitHub Pages）
+# 保險試算中心（GitHub Pages + Supabase）
 
-## 專案結構
+## 專案內容
+- `index.html`：三項試算工具入口。
+- `products/man-yu-zhong-xin/`：滿溢鍾心保險金預估。
+- `products/shi-zhi-shi-fu/`：實支實付保費比較。
+- `products/genesis-risk-premium/`：創世紀危險保費試算。
+- `admin/index.html`：創世紀年度費率管理後台。
+- `supabase/schema.sql`：Supabase 資料表、RLS 權限設定。
+- `supabase/seed_115.csv`：由使用者提供的 Excel「115」工作表匯出的 115 年男女費率（0～99 歲）。
+- `config.example.js`：Supabase 前端設定範本。
 
-```text
-insurance-calculator-center/
-├─ index.html
-├─ products/
-│  └─ man-yu-zhong-xin/
-│     └─ index.html
-├─ README.md
-└─ GOOGLE-SITES.md
-```
+## 一、建立 Supabase 資料庫
+1. 登入 Supabase，建立一個專案。
+2. 開啟 **SQL Editor**，執行 `supabase/schema.sql` 全部內容。
+3. 到 **Authentication → Users** 建立管理者登入帳號。
+4. 複製管理者的 User UID，回到 SQL Editor，執行：
+   ```sql
+   insert into public.admin_users (user_id) values ('貼上管理者 User UID');
+   ```
+5. 匯入初始 115 年費率：開啟 **Table Editor → genesis_risk_rates → Import data from CSV**，匯入 `supabase/seed_115.csv`。確認欄位對應 `rate_year, age, male_rate, female_rate`。
+6. 將 `config.example.js` 複製成 `config.js`，填入 Supabase **Project URL** 與 **anon/public key**。不要使用 `service_role` key，也不要把它放到前端。
 
-- `index.html`：試算中心入口。
-- `products/man-yu-zhong-xin/index.html`：滿溢鍾心商品試算器。
-- `products/shi-zhi-shi-fu/index.html`：實支實付保費比較。
-- `data.json`：實支實付費率與保障內容資料，由原始 Excel 工作表匯出。
-- 新增商品時，新增 `products/<商品代碼>/index.html`，再在入口 `index.html` 新增商品卡片。
+## 二、設定網站
+1. 將整個資料夾內容上傳至 GitHub Repository 根目錄。
+2. `config.js` 也必須部署到網站根目錄，才能連線 Supabase。注意：其中只能放 anon/public key。
+3. 開啟 GitHub Pages，選擇 `main` 分支與 `/(root)`。
+4. 試算入口：`/`；管理後台：`/admin/`。
 
-## 部署到 GitHub Pages
+## 三、管理年度費率
+1. 管理者開啟 `/admin/`，使用已加入 `admin_users` 的帳號登入。
+2. 輸入民國年度，下載 CSV 範本，填入該年度 0～99 歲男性與女性的每萬保額年費率。
+3. CSV 標題必須是 `rate_year,age,male_rate,female_rate`，年齡需完整且不可重複。
+4. 選擇 CSV 並匯入。匯入相同年度會更新該年度資料，不會覆蓋其他年度。
+5. 試算頁會依試算年度讀取該年度費率；若該年度尚未上傳，沿用最近一個較早年度的費率。新年度費率匯入後，對應年度的試算會自動改採新費率。
 
-1. 建立一個 GitHub repository，例如 `insurance-calculator-center`。
-2. 將本資料夾內的所有檔案上傳到 repository 根目錄。
-3. 開啟 repository 的 **Settings → Pages**。
-4. 在 **Build and deployment** 選擇 **Deploy from a branch**。
-5. Branch 選 `main`，資料夾選 `/(root)`，按 **Save**。
-6. 等待 GitHub Pages 完成部署，從 Pages 頁面上的 **Visit site** 取得網站網址。
+## 試算規則與假設
+- 性別：男性／女性。
+- 年齡：直接輸入目前保險年齡，或輸入民國出生年月日（6 碼或 7 碼，例如 `800512`、`1070630`）；出生日期依生日滿半年加一歲換算。
+- 保額：輸入值視為淨危險保額，不扣除保單帳戶價值。
+- 每月危險保費：`ROUND(淨危險保額 ÷ 10,000 × 每萬保額年費率 ÷ 12, 0)`。因表格費率單位為「每萬危險保額」，計算時須先將淨危險保額換算成萬。
+- 每年危險保費：每月危險保費 × 12。
+- 每年帳管費：1,200 元。
+- 試算至 99 歲，假設淨危險保額固定、每年收取 12 個月帳管費。
+- 第一個試算年度依使用者當地日期換算民國年度；每年年齡增加 1 歲。若未有對應年度費率，沿用最近一個較早年度費率。
 
-GitHub Pages 會直接託管 HTML、CSS、JavaScript 等靜態檔案；此版已將費率表嵌入商品頁，不再呼叫 Apps Script。
+## 重要限制
+原始 Excel 工作表「115」註明危險保險費每年可能因參考死亡率指數不同而改變，表列金額僅供參考，實際以保險公司系統為準。本工具為簡化情境試算，未依「危險保費計算規範」區分各險別收費起點、保單週月日及未滿月按日比例；也不推算淨危險保額未來變化。正式數字應以保單條款及保險公司核定為準。
 
-## Google Sites
-
-取得 GitHub Pages 網址後：
-
-1. 開啟 Google Sites 編輯器。
-2. 在入口頁選擇 **插入 → 嵌入 → 依網址**。
-3. 貼上 GitHub Pages 首頁網址，或新增「滿溢鍾心」頁面並貼上商品頁網址。
-4. 若嵌入預覽正常，調整區塊寬度與高度；若頁面內容太長，可在 Google Sites 使用「整頁嵌入」。
-5. 發布 Google Sites。
-
-若外部頁面無法嵌入，保留一般連結按鈕即可；不要因此把試算器改回 Apps Script。
-
-## 擴充新商品
-
-1. 新增 `products/<商品代碼>/index.html`。
-2. 該商品頁自帶自己的費率表、公式與條款說明。
-3. 在根目錄 `index.html` 的 `cards` 區塊複製一張卡片，更新商品名稱、摘要與連結。
-4. 不同商品各自獨立，更新單一商品不必改動其他商品。
-
-## 注意事項
-
-- GitHub Pages 網站是公開網站；不要放入客戶姓名、身分證字號、保單號碼、登入憑證或其他個人資料。
-- 本版為靜態前端試算，不包含資料庫、登入權限或個人試算紀錄。
-- 本版保留整歲情境估算限制，正式結果仍以保單條款及保險公司核定為準。
-
-## 保險年齡輸入方式
-
-兩個商品的投保年齡均可選擇「出生年月日」或「直接輸入保險年齡」。滿溢鍾心另可針對疾病情境輸入預估診斷日期，系統會依出生日期換算事故當時保險年齡；也可直接輸入事故保險年齡。生日滿六個月時，保險年齡加一歲。生日模式的投保年齡以使用者裝置當地今日日期計算。
+## 既有工具注意事項
+- GitHub Pages 網站公開；不要放入客戶個資、保單資料或任何 Supabase service_role key。
+- 本網站的公開 anon key 依賴 Supabase RLS 保護資料；不要關閉 RLS。
