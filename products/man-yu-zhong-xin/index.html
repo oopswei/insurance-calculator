@@ -147,9 +147,9 @@
       </div>
       <div class="scenario-row">
       <div class="field">
-        <label for="claimAge">疾病發生年齡</label>
+        <label for="claimAge">疾病發生年齡（選填）</label>
         <input id="claimAge" type="number" min="0" max="90" step="1" value="" placeholder="請輸入疾病發生時的保險年齡" inputmode="numeric">
-        <div class="hint" id="claimAgeCalculatedHint">直接輸入假設疾病發生時的保險年齡。</div>
+        <div class="hint" id="claimAgeCalculatedHint">可留白；填寫後才會進一步試算疾病給付及保障時間軸。</div>
         <div class="error" id="claimAgeError"></div>
       </div>
       <div class="field">
@@ -187,6 +187,7 @@
       </div>
       <div id="waiverStatus" class="status hidden"></div>
 
+      <div id="claimScenarioResults">
       <h2 class="section-title" style="margin-top:25px">三、保障給付時間軸</h2>
       <div class="timeline-card">
         <div class="timeline-head">
@@ -239,6 +240,7 @@
           <div class="benefit-value" id="disabilityBenefit">—</div>
           <div class="benefit-note" id="disabilityNote">依完全失能診斷年度計算：保額與應繳保費總額×1.05取大</div>
         </div>
+      </div>
       </div>
     </div>
 
@@ -396,8 +398,8 @@
     if (amountText === '' || !Number.isFinite(amountWan) || amountWan < 30 || amountWan > 500) {
       $('amountError').textContent = '保額須介於 30～500 萬元。'; valid = false;
     }
-    if (claimAgeText === '' || !Number.isInteger(claimAge) || claimAge < age || claimAge > 89) {
-      $('claimAgeError').textContent = '請輸入投保年齡至89歲之間的整數事故年齡。'; valid = false;
+    if (claimAgeText !== '' && (!Number.isInteger(claimAge) || claimAge < age || claimAge > 89)) {
+      $('claimAgeError').textContent = '如需試算疾病情境，請輸入投保年齡至89歲之間的整數事故年齡。'; valid = false;
     }
     if (!valid) { $('resultArea').classList.add('hidden'); return; }
     const rateColumn = (gender === 'male' ? 0 : 2) + (currentTerm === 15 ? 0 : 1);
@@ -406,6 +408,24 @@
 
     const annual = Math.round(rate * amountWan);
     const scheduledTotal = annual * currentTerm;
+
+    // 未輸入疾病發生年齡時，只顯示保費試算，不假設疾病事故發生年度。
+    $('resultArea').classList.remove('hidden');
+    $('annualPremium').textContent = money(annual) + ' 元';
+    $('displayAmount').textContent = `${amountWan.toLocaleString('en-US')} 萬元`;
+    $('totalLabel').textContent = '原定總繳保費';
+    $('totalPremium').textContent = money(scheduledTotal) + ' 元';
+    $('totalFormula').textContent = `${money(annual)} 元 × ${currentTerm} 年`;
+    if (claimAgeText === '') {
+      $('claimScenarioResults').classList.add('hidden');
+      const status = $('waiverStatus');
+      status.classList.remove('hidden','waiver','normal');
+      status.classList.add('normal');
+      status.textContent = '未輸入疾病發生年齡：目前僅顯示原定年繳保費與總繳保費。填入疾病發生年齡後，才會試算疾病給付、滿期金及保障時間軸。';
+      return;
+    }
+    $('claimScenarioResults').classList.remove('hidden');
+
     // 以整數保險年齡推估事故發生的保單年度；第1年應繳保費總額為1年保費，第2年為2年，以此類推，最多計至原定繳費期滿。
     const policyYear = Math.max(1, Math.min(currentTerm, claimAge - age + 1));
     const premiumBaseAtClaim = annual * policyYear;
