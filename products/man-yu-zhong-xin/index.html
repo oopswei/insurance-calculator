@@ -149,7 +149,7 @@
       <div class="field">
         <label for="claimAge">疾病發生年齡（選填）</label>
         <input id="claimAge" type="number" min="0" max="90" step="1" value="" placeholder="請輸入疾病發生時的保險年齡" inputmode="numeric">
-        <div class="hint" id="claimAgeCalculatedHint">可留白；填寫後才會進一步試算疾病給付及保障時間軸。</div>
+        <div class="hint" id="claimAgeCalculatedHint">留白代表未設定疾病事故，將試算滿期保險金及90歲祝壽保險金；填寫後則改以疾病事故情境試算。</div>
         <div class="error" id="claimAgeError"></div>
       </div>
       <div class="field">
@@ -417,11 +417,46 @@
     $('totalPremium').textContent = money(scheduledTotal) + ' 元';
     $('totalFormula').textContent = `${money(annual)} 元 × ${currentTerm} 年`;
     if (claimAgeText === '') {
-      $('claimScenarioResults').classList.add('hidden');
+      // 未輸入疾病發生年齡，代表本次試算採「未發生疾病事故、契約持續有效」情境。
+      // 依既有試算設定，滿期金與90歲祝壽金各為原定總繳保費的50%。
+      $('claimScenarioResults').classList.remove('hidden');
+      const halfScheduledTotal = Math.round(scheduledTotal * 0.5);
+      const maturityAge = age + currentTerm + 10;
+
+      setBenefitValue('criticalBenefit', '未發生／不給付', true);
+      $('criticalNote').textContent = '本情境未設定重大傷病事故。';
+      setBenefitValue('specificBenefit', '未發生／不給付', true);
+      $('specificNote').textContent = '本情境未設定特定疾病事故。';
+
+      $('maturityLabel').textContent = `滿期保險金（約 ${maturityAge} 歲）`;
+      setBenefitValue('maturityBenefit', money(halfScheduledTotal) + ' 元', false);
+      $('maturityNote').textContent = `假設契約持續有效並符合滿期給付條件：原定總繳保費 ${money(scheduledTotal)} 元 × 50%。`;
+
+      setBenefitValue('birthdayBenefit', money(halfScheduledTotal) + ' 元', false);
+      $('birthdayNote').textContent = `假設契約持續有效至90歲週年日且符合祝壽給付條件：原定總繳保費 ${money(scheduledTotal)} 元 × 50%。`;
+
+      setBenefitValue('deathBenefit', '依事故年度另計', true);
+      $('deathNote').textContent = '未設定身故事故年度，無法計算該年度給付金額。';
+      setBenefitValue('disabilityBenefit', '依事故年度另計', true);
+      $('disabilityNote').textContent = '未設定完全失能事故年度，無法計算該年度給付金額。';
+
+      const totalNoIllness = halfScheduledTotal + halfScheduledTotal;
+      $('totalPayout').textContent = money(totalNoIllness) + ' 元';
+      $('totalPayoutNote').textContent = `未發生疾病事故且契約持續有效的情境：滿期保險金 ${money(halfScheduledTotal)} 元 + 90歲祝壽保險金 ${money(halfScheduledTotal)} 元。`;
+
+      $('timeline').innerHTML = [
+        {age:age,kind:'start',title:'開始投保',amount:`年繳 ${money(annual)} 元`,desc:`原定繳費 ${currentTerm} 年`},
+        {age:maturityAge,kind:'maturity',title:'滿期保險金',amount:`${money(halfScheduledTotal)} 元`,desc:'假設契約持續有效並符合給付條件'},
+        {age:90,kind:'maturity',title:'90歲祝壽保險金',amount:`${money(halfScheduledTotal)} 元`,desc:'假設屆時仍生存且契約有效'}
+      ].sort((a,b)=>a.age-b.age).map(e=>`<div class="milestone ${e.kind}"><div class="dot"></div><span class="age-tag">${e.age} 歲</span><div class="event-name">${e.title}</div><div class="event-money">${e.amount}</div><div class="event-desc">${e.desc}</div></div>`).join('');
+
+      $('timelineDetail').textContent = `未設定疾病事故，故本情境假設契約持續有效；滿期時預估給付 ${money(halfScheduledTotal)} 元，90歲祝壽時預估給付 ${money(halfScheduledTotal)} 元。`;
+      $('birthdayTimeline').textContent = `若未發生導致契約終止的事故，且契約持續有效至90歲週年日並符合條款條件，預估可領祝壽保險金 ${money(halfScheduledTotal)} 元。`;
+
       const status = $('waiverStatus');
       status.classList.remove('hidden','waiver','normal');
       status.classList.add('normal');
-      status.textContent = '未輸入疾病發生年齡：目前僅顯示原定年繳保費與總繳保費。填入疾病發生年齡後，才會試算疾病給付、滿期金及保障時間軸。';
+      status.textContent = '未輸入疾病發生年齡：本試算以未發生疾病事故、契約持續有效為前提，列示滿期保險金及90歲祝壽保險金。實際給付仍須符合保單條款及契約有效條件。';
       return;
     }
     $('claimScenarioResults').classList.remove('hidden');
