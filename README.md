@@ -50,3 +50,13 @@
 ## 既有工具注意事項
 - GitHub Pages 網站公開；不要放入客戶個資、保單資料或任何 Supabase service_role key。
 - 本網站的公開 anon key 依賴 Supabase RLS 保護資料；不要關閉 RLS。
+
+## 理賠案例管理後台（首次設定）
+
+1. 使用 Supabase 專案既有管理員帳號登入 `admin/`。
+2. 在 Supabase Dashboard → SQL Editor 執行專案根目錄的 `claims-admin.sql` 一次。這會建立 `claims` 資料表、`claims-images` 圖片 bucket、RLS 權限，並將原本 20 件靜態案例登錄至資料表。
+3. 回到 GitHub Pages 首頁重新整理；理賠案例改由 Supabase 資料庫動態載入。
+4. 管理員登入 `admin/` 後，在「理賠案例管理」新增分類、案例名稱，並可一次選取多張 JPG／PNG／WebP 圖片（每張上限 15 MB）。
+5. 修改案例可變更分類與名稱，也可追加圖片；刪除案例會一併刪除該案例已上傳至 Storage 的圖片。原有 `legacy:` 圖片仍由專案 `claims/` 資料夾提供。
+
+安全設定：圖片 bucket 設為公開讀取，因首頁訪客需能檢視案例；新增、修改、刪除資料及圖片僅允許 `admin_users` 表內的管理員 UID。請勿把 Supabase service_role key 放入前端。

@@ -27,6 +27,21 @@
     .card a:hover{text-decoration:underline}
     .placeholder{border-style:dashed;background:rgba(255,255,255,.55);box-shadow:none}
     .placeholder h3{color:#64758a}
+
+    .claims-section{margin-top:38px;padding-top:28px;border-top:1px solid var(--line)}
+    .claims-head{align-items:center}
+    .claims-intro{margin:7px 0 0;color:var(--muted);font-size:13px;line-height:1.7}
+    .claim-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+    .claim-group{padding:19px;background:#fff;border:1px solid var(--line);border-radius:15px;box-shadow:0 6px 20px rgba(20,48,78,.035)}
+    .claim-group h3{display:flex;align-items:center;gap:9px;margin:0 0 13px;color:var(--navy);font-size:16px}
+    .claim-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
+    .cancer-dot{background:#c66b75}.accident-dot{background:#d59b39}.medical-dot{background:#4c8caa}
+    .claim-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .claim-link{display:flex;justify-content:space-between;align-items:center;gap:7px;min-height:42px;padding:9px 11px;border:1px solid #e5ebf1;border-radius:9px;background:#f9fbfd;color:#294e70;text-decoration:none;font-size:13px;font-weight:700;line-height:1.5}
+    .claim-link span{color:#7890a7;flex:none}
+    .claim-link:hover{border-color:#8eacc8;background:#eef5fb}
+    .claims-notice{margin:13px 2px 0;color:var(--muted);font-size:11px;line-height:1.8}
+    @media(max-width:620px){.claim-groups{grid-template-columns:1fr}.claim-list{grid-template-columns:1fr}.claims-head{align-items:flex-start}}
     .footer{margin-top:26px;padding-top:17px;border-top:1px solid var(--line);color:var(--muted);font-size:11px;line-height:1.7}
     @media(max-width:620px){.hero{padding:40px 0 34px}h1{font-size:28px}.cards{grid-template-columns:1fr}.card{min-height:190px}.main{padding-top:24px}}
   </style>
@@ -69,9 +84,25 @@
         <p>未來新增商品時，建立獨立商品頁並在此新增入口卡片；各商品的費率與計算邏輯互不干擾。</p>
       </article>
     </section>
+
+    <section class="claims-section" aria-labelledby="claims-title">
+      <div class="section-head claims-head">
+        <div>
+          <h2 id="claims-title">理賠案例參考</h2>
+          <p class="claims-intro">依案例類型分類，點選案例名稱即可開啟理賠圖片。</p>
+        </div>
+        <span class="count" id="claimCount">案例資料載入中</span>
+      </div>
+      <div class="claim-groups" id="claimGroups"><p class="claims-intro">正在載入理賠案例…</p></div>
+      <p class="claims-notice">案例圖片僅供內部教育與保障說明參考，個案理賠結果會因保單條款、投保內容、事故事實及保險公司審核而異，不代表相同情況必然獲得相同理賠。公開分享前請確認已取得適當授權並完成個人資料遮蔽。</p>
+    </section>
     <div class="footer">
       本網站提供情境估算與教育說明，不構成承保、理賠或正式保險建議。實際費率、承保條件及保險金給付，均以正式商品文件、保單條款及保險公司核定為準。
     </div>
   </main>
+  <script src="config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  (async()=>{try{const cfg=window.SUPABASE_CONFIG||{};if(!cfg.url||!cfg.anonKey)return;const sb=window.supabase.createClient(cfg.url,cfg.anonKey);const [{data,error},{data:catOrder}]=await Promise.all([sb.from('claims').select('id,category,title,image_paths,sort_order,created_at').order('sort_order').order('created_at'),sb.from('claim_category_order').select('category,sort_order').order('sort_order')]);if(error||!data||!data.length)return;const colors={'癌症／重大疾病':'cancer-dot','意外／骨折':'accident-dot','住院／手術／實支實付':'medical-dot','其他':'medical-dot'};const groups={};data.forEach(c=>(groups[c.category]??=[]).push(c));const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const categoryOrder=(catOrder||[]).map(x=>x.category);const orderedGroups=[...new Set([...categoryOrder,...Object.keys(groups)])].filter(cat=>groups[cat]);document.getElementById('claimGroups').innerHTML=orderedGroups.map(cat=>[cat,groups[cat]]).map(([cat,items])=>`<section class="claim-group"><h3><span class="claim-dot ${colors[cat]||'medical-dot'}"></span>${esc(cat)}</h3><div class="claim-list">${items.map(c=>`<a class="claim-link" href="claims/view.html?id=${encodeURIComponent(c.id)}" target="_blank" rel="noopener">${esc(c.title)}<span aria-hidden="true">↗</span></a>`).join('')}</div></section>`).join('');document.getElementById('claimCount').textContent=`共 ${data.length} 件案例`}catch(e){console.warn('claims load failed',e)}})();
+  </script>
 </body>
 </html>
