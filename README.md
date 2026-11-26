@@ -72,3 +72,15 @@
 6. 圖片支援 JPG／PNG／WebP，每張上限 15 MB。公開訪客僅能讀取啟用的比較表及圖片，只有 `admin_users` 內的管理員可新增、修改、刪除。
 
 注意：需先執行 `rider-comparisons.sql`，後台管理及首頁動態資料才會啟用。未執行 SQL 時，首頁仍會顯示原有兩個比較表的預設入口。
+
+## 全站自動更新與快取管理
+
+本專案已加入 `update.js`、`sw.js` 與 `version.json`：
+
+- 首頁、管理後台、理賠案例、比較表檢視頁及四個試算工具都會註冊同一個 Service Worker。
+- 同網域 HTML、JavaScript、CSS、圖片及字型採網路優先；有網路時會取得最新內容，離線時才回退快取。
+- 每次部署新版本時，請同時更新 `sw.js` 的 `CACHE_VERSION`（改成新的唯一版本字串），並更新 `version.json` 的 `version` 與 `updatedAt`。瀏覽器下次開啟網站時會檢查 Service Worker 更新，啟用新版後清除本專案舊版快取。
+- 此機制不會清除 Supabase 資料庫、管理員帳號、登入權限或資料表內容。
+- 首次部署後，使用者可能需要重新載入一次，讓瀏覽器完成 Service Worker 接管；之後會自動檢查更新。
+
+注意：Service Worker 僅能在 HTTPS 或 localhost 環境運作。GitHub Pages 預設符合 HTTPS 條件。
