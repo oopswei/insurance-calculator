@@ -118,27 +118,22 @@
     <section class="rider-section" aria-labelledby="rider-title">
       <div class="section-head">
         <div>
-          <h2 id="rider-title">附約比較表</h2>
-          <p class="rider-intro">依商品類型分類，點選比較表名稱即可另開頁面檢視完整圖片。</p>
+          <h2 id="rider-title">各式比較表</h2>
+          <p class="rider-intro">依比較項目分類，點選名稱即可開啟圖片檢視，並可切換同一比較表的下一張圖片。</p>
         </div>
-        <span class="count">共 4 張比較表</span>
+        <span class="count" id="riderCount">共 2 項比較表</span>
       </div>
-
-      <div class="rider-group">
-        <h3>新舊溫心大心比較表</h3>
-        <div class="rider-link-list">
-          <a class="claim-link" href="assets/rider-comparisons/新舊溫心大心比較表.jpg" target="_blank" rel="noopener">
-            新舊溫心大心保障比較表 <span aria-hidden="true">↗</span>
-          </a>
-        </div>
-      </div>
-
-      <div class="rider-group">
-        <h3>意外險升級比較表</h3>
-        <div class="rider-link-list">
-          <a class="claim-link" href="assets/rider-comparisons/accident-gallery.html">
-            意外險升級比較表（3 張，可切換） <span aria-hidden="true">↗</span>
-          </a>
+      <div id="riderGroups">
+        <div class="rider-group">
+          <h3>一般比較</h3>
+          <div class="rider-link-list">
+            <a class="claim-link" href="comparisons/view.html?legacy=warm-heart">
+              新舊溫心大心比較表 <span aria-hidden="true">↗</span>
+            </a>
+            <a class="claim-link" href="comparisons/view.html?legacy=accident">
+              意外險升級比較表（3 張，可切換） <span aria-hidden="true">↗</span>
+            </a>
+          </div>
         </div>
       </div>
     </section>
@@ -155,5 +150,22 @@
 
 
 
+
+  <script>
+  (async()=>{
+    const host=document.getElementById('riderGroups'), count=document.getElementById('riderCount');
+    if(!host||!window.supabase||!window.SUPABASE_CONFIG)return;
+    const cfg=window.SUPABASE_CONFIG;if(!cfg.url||!cfg.anonKey)return;
+    try{
+      const sb=window.supabase.createClient(cfg.url,cfg.anonKey);
+      const {data,error}=await sb.from('rider_comparisons').select('id,category,title,sort_order').eq('is_active',true).order('sort_order').order('created_at');
+      if(error||!data||!data.length)return;
+      const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      const groups={};data.forEach(x=>(groups[x.category||'一般比較']??=[]).push(x));
+      host.innerHTML=Object.entries(groups).map(([cat,items])=>`<div class="rider-group"><h3>${esc(cat)}</h3><div class="rider-link-list">${items.map(x=>`<a class="claim-link" href="comparisons/view.html?id=${encodeURIComponent(x.id)}">${esc(x.title)}<span aria-hidden="true">↗</span></a>`).join('')}</div></div>`).join('');
+      count.textContent=`共 ${data.length} 項比較表`;
+    }catch(e){console.warn('比較表載入失敗，使用預設項目',e)}
+  })();
+  </script>
 </body>
 </html>
