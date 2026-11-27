@@ -1,5 +1,5 @@
 /* 每次部署更新本檔的 CACHE_VERSION，舊版快取會在啟用時自動清除。 */
-const CACHE_VERSION = 'insurance-center-20261127-5';
+const CACHE_VERSION = 'insurance-center-20261127-6';
 const CACHE_NAME = `${CACHE_VERSION}-runtime`;
 
 self.addEventListener('install', event => {
